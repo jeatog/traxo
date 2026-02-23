@@ -137,16 +137,49 @@ docker compose --env-file .env up -d --no-deps --force-recreate backend
   
 ---  
   
-## Logs y diagnóstico  
-  
-```bash  
-# Logs de todos los servicios  
-docker compose --env-file .env logs -f  
-  
-# Logs de un servicio  
-docker compose --env-file .env logs -f backend  
-docker compose --env-file .env logs -f micros  
-  
-# Estado de los contenedores y health checks  
-docker compose --env-file .env ps  
-```  
+## Logs y diagnóstico
+
+```bash
+# Logs de todos los servicios
+docker compose --env-file .env logs -f
+
+# Logs de un servicio
+docker compose --env-file .env logs -f backend
+docker compose --env-file .env logs -f micros
+
+# Estado de los contenedores y health checks
+docker compose --env-file .env ps
+```
+
+---
+
+## Backup de PostgreSQL
+
+El script `scripts/backup_postgres.sh` genera un dump diario y elimina automáticamente los backups con más de 7 días de antigüedad.
+
+Los backups se guardan en `/var/backups/traxo/` por defecto. Para usar otra ruta, exportar `BACKUP_DIR` antes de ejecutar o en el crontab.
+
+**Ejecutar manualmente:**
+
+```bash
+./scripts/backup_postgres.sh
+```
+
+**Programar con cron (backup diario a las 3:00 AM):**
+
+```bash
+crontab -e
+```
+
+Agregar la línea (por definir la ruta absoluta en el servidor):
+
+```
+0 3 * * * /ruta/absoluta/git/traxo/traxo-infra/scripts/backup_postgres.sh >> /var/log/traxo_backup.log 2>&1
+```
+
+**Restaurar un backup:**
+
+```bash
+docker compose --env-file .env exec -T postgres \
+  pg_restore -U traxo -d traxo --clean < /var/backups/traxo/traxo_YYYYMMDD_HHMMSS.dump
+```
