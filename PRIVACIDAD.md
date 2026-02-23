@@ -71,3 +71,6 @@ El endpoint `DELETE /api/perfil` elimina en cascada:
 La eliminación es inmediata e irreversible. No hay período de gracia ni papelera.
 
 ---
+
+## TODO
+- Migrar el token JWT de `localStorage` a cookie `HttpOnly` + `Secure` + `SameSite=Strict` — ver `PENDIENTE_JWT_COOKIE.md`. Como esto afecta el entorno local y creo que no es tan necesario para producción pequeña, lo dejo pendiente. Pero sería bueno tenerlo cuanto antes.
