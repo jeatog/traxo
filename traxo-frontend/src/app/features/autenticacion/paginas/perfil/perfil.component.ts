@@ -43,7 +43,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
         }
       </div>
 
-      <!-- Cambiar contrasena -->
+      <!-- Cambiar contraseña -->
       <div class="bg-fondo-tarjeta rounded-2xl shadow-sm border border-borde-sutil p-5 space-y-3">
         <h2 class="text-sm font-semibold text-secundario uppercase tracking-wide">{{ TEXTOS.botonCambiarContrasena }}</h2>
         <form [formGroup]="formContrasena" (ngSubmit)="cambiarContrasena()" class="space-y-3">
