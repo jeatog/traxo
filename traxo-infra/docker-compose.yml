@@ -1,0 +1,84 @@
+name: traxo
+
+services:
+
+  # BD con Postgres
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-traxo}
+      POSTGRES_USER: ${DB_USER:-traxo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-traxo}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-traxo} -d ${DB_NAME:-traxo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Spring Boot con Java (obvio)
+  backend:
+    build:
+      context: ../traxo-backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-traxo}
+      DB_USER: ${DB_USER:-traxo}
+      DB_PASSWORD: ${DB_PASSWORD:-traxo}
+      JWT_SECRETO: ${JWT_SECRETO}
+      JWT_EXPIRACION_MS: ${JWT_EXPIRACION_MS:-86400000}
+      MICROS_URL: http://micros:3000
+      MICROS_API_KEY: ${MICROS_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Microservicios Python con FastAPI
+  micros:
+    build:
+      context: ../traxo-micros
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      MICROS_API_KEY: ${MICROS_API_KEY}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Frontend con Angular
+  frontend:
+    build:
+      context: ../traxo-frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:

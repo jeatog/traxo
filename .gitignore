@@ -1,0 +1,46 @@
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+*.tgz
+
+# Java / Spring Boot
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.gradle/
+build/
+out/
+
+# Docker
+*.override.yml
+
+# IDEs
+.idea/
+.vscode/
+*.suo
+*.user
+
+# SO
+.DS_Store
+Thumbs.db
