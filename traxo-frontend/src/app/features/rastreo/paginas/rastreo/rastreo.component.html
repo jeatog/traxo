@@ -255,11 +255,8 @@
             <label class="text-xs font-semibold text-atenuado uppercase tracking-wider">
               {{ TEXTOS.etiquetaFecha }}
             </label>
-            <input formControlName="fechaOperacion" type="date"
-                   class="w-full border-2 rounded-2xl px-4 py-3.5 text-sm text-principal bg-fondo-input
-                          focus:outline-none focus:border-primario focus:bg-fondo-tarjeta transition-all duration-200"
-                   [class.border-error]="tieneError('fechaOperacion')"
-                   [class.border-borde]="!tieneError('fechaOperacion')"/>
+            <trx-calendario formControlName="fechaOperacion"
+                            [error]="tieneError('fechaOperacion')"/>
             @if (tieneError('fechaOperacion')) {
               <p class="text-error text-xs pl-1 animate-fade-in">{{ TEXTOS_ERR.campoRequerido }}</p>
             }

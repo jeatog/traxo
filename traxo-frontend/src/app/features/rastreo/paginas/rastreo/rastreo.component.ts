@@ -8,11 +8,12 @@ import { TemaService } from '../../../../core/tema/tema.service';
 import { BancosService } from '../../../../core/bancos/bancos.service';
 import { ResultadoRastreo } from '../../../../shared/utils/modelos';
 import { TEXTOS_RASTREO, TEXTOS_RESULTADO, TEXTOS_ERRORES, TEXTOS_GENERAL } from '../../../../shared/textos';
+import { CalendarioComponent } from '../../../../shared/components/calendario/calendario.component';
 
 @Component({
   selector: 'trx-rastreo',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, CalendarioComponent],
   templateUrl: './rastreo.component.html',
 })
 export class RastreoComponent implements OnInit {
