@@ -148,6 +148,15 @@
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 
+/* Prevenir zoom en inputs al enfocar (requiere font-size >= 16px) */
+@media (hover: none) and (pointer: coarse) {
+  input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 /* Spinner de carga */
 .spinner {
   display: inline-block;
