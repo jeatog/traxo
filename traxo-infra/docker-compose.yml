@@ -34,6 +34,7 @@ services:
       JWT_EXPIRACION_MS: ${JWT_EXPIRACION_MS:-86400000}
       MICROS_URL: http://micros:3000
       MICROS_API_KEY: ${MICROS_API_KEY}
+      JAVA_TOOL_OPTIONS: "-Xmx512m"
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,6 +43,10 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 700m
 
   # Microservicios Python con FastAPI
   micros:
@@ -56,6 +61,10 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1300m
 
   # Frontend con Angular
   frontend:
