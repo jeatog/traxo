@@ -40,24 +40,71 @@ El compose tiene `restart: unless-stopped` en todos los servicios, por lo que se
   
 ---  
   
-## Pre-requisitos  
-  
-- Docker Engine ≥ 24 y Docker Compose v2 (`docker compose`, no `docker-compose`)  
-- Archivo `traxo-infra/.env` creado a partir de `.env.example` con todos los valores completos  
-- Certificados TLS en `traxo-infra/nginx/certs/`:  
-- **No es necesario crear la base de datos ni ejecutar queries manualmente.** PostgreSQL crea la base al arrancar (a partir de `DB_NAME`) y Flyway aplica todas las migraciones pendientes automáticamente cada vez que el backend inicia. Las migraciones futuras solo requieren añadir el archivo SQL en `traxo-backend/src/main/resources/db/migration/`.  
-- `fullchain.pem`  
-- `privkey.pem`  
-  
-Para obtener certificados con Let's Encrypt (en el servidor, antes del primer despliegue):  
-  
-```bash  
-certbot certonly --standalone -d traxo.mx  
-cp /etc/letsencrypt/live/traxo.mx/fullchain.pem nginx/certs/  
-cp /etc/letsencrypt/live/traxo.mx/privkey.pem   nginx/certs/  
+## Pre-requisitos
+
+- Docker Engine ≥ 24 y Docker Compose v2 (`docker compose`, no `docker-compose`)
+- **No es necesario crear la base de datos ni ejecutar queries manualmente.** PostgreSQL crea la base al arrancar y Flyway aplica todas las migraciones pendientes automáticamente cada vez que el backend inicia.
+
+### Variables de entorno (.env)
+
+Copiar `.env.example` como `.env` y completar los valores. El único que no tiene default y cuyo valor importa en seguridad es `JWT_SECRETO`. Generar uno seguro con:
+
+```bash
+openssl rand -base64 48
+```
+
+Pegar el resultado en `.env`:
+
+```
+JWT_SECRETO=<salida del comando anterior>
+```
+
+### Certificados TLS
+
+Colocar los certificados en `traxo-infra/nginx/certs/` antes del primer despliegue:
+
+```
+nginx/certs/
+├── fullchain.pem
+└── privkey.pem
+```
+
+Con Let's Encrypt (en el servidor):
+
+```bash
+certbot certonly --standalone -d traxo.mx
+cp /etc/letsencrypt/live/traxo.mx/fullchain.pem nginx/certs/
+cp /etc/letsencrypt/live/traxo.mx/privkey.pem   nginx/certs/
+```
+
+### Configuración de Nginx
+
+El archivo `nginx/nginx.conf` ya incluye la configuración de seguridad lista para producción. El nombre del servidor se establece en `server_name`:
+
+```nginx
+server_name traxo.mx;
+```
+
+**Rate limiting** — protege los endpoints de autenticación contra fuerza bruta:
+
+| Endpoint | Límite | Burst |
+|---|---|---|
+| `POST /api/auth/login` | 5 req/min por IP | 3 |
+| `POST /api/auth/registro` | 3 req/min por IP | 1 |
+
+Las peticiones que excedan el límite reciben `429 Too Many Requests`.
+
+**Content-Security-Policy** — restringe qué recursos puede cargar el navegador:
+
+```
+default-src 'self'
+script-src  'self'
+style-src   'self' 'unsafe-inline'   (necesario para Angular/Tailwind)
+img-src     'self' data:
+connect-src 'self'                   (peticiones XHR/fetch solo al mismo origen)
+worker-src  'self'                   (Service Worker PWA)
+frame-ancestors 'none'
 ```  
-  
-También actualizar `server_name` en `nginx/nginx.conf` con el dominio real.  
   
 ---  
   
