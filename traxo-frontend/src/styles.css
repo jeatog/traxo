@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Tokens de diseño*/
+  :root {
+    /* Fondos                             slate-50 / white / slate-50 */
+    --fondo-base:       248 250 252;
+    --fondo-tarjeta:    255 255 255;
+    --fondo-input:      248 250 252;
+    /* Texto                              slate-900 / slate-600 / slate-400 */
+    --principal:         15  23  42;
+    --secundario:        71  85 105;
+    --atenuado:         148 163 184;
+    /* Bordes                             slate-200 / slate-100 */
+    --borde:            226 232 240;
+    --borde-sutil:      241 245 249;
+    /* Marca                              teal-600 / teal-700 / teal-50 */
+    --primario:          13 148 136;
+    --primario-hover:    15 118 110;
+    --primario-tenue:   240 253 250;
+    /* Acento                             amber-400 */
+    --acento:           251 191  36;
+    /* Texto sobre fondo de marca        teal-100 (invariante) */
+    --sobre-marca:      204 251 241;
+    /* Estado: error                     rose-600 / rose-50 / rose-200 / rose-100 */
+    --error:            225  29  72;
+    --error-fondo:      255 241 242;
+    --error-borde:      254 205 211;
+    --error-tenue:      255 228 230;
+    /* Estado: éxito                     emerald-600 / emerald-50 */
+    --exito:              5 150 105;
+    --exito-fondo:      236 253 245;
+    /* Estado: aviso                     amber-700 / amber-50 */
+    --aviso:            180  83   9;
+    --aviso-fondo:      255 251 235;
+  }
+
+  .dark {
+    /* Fondos                             slate-950 / slate-900 / slate-800 */
+    --fondo-base:         2   6  23;
+    --fondo-tarjeta:     15  23  42;
+    --fondo-input:       30  41  59;
+    /* Texto                              slate-100 / slate-400 / slate-500 */
+    --principal:        241 245 249;
+    --secundario:       148 163 184;
+    --atenuado:         100 116 139;
+    /* Bordes                             slate-800 (ambos) */
+    --borde:             30  41  59;
+    --borde-sutil:       30  41  59;
+    /* Marca                              teal-400 / teal-500 / teal-900 */
+    --primario:          45 212 191;
+    --primario-hover:    20 184 166;
+    --primario-tenue:    19  78  74;
+    /* Acento (sin cambio) */
+    --acento:           251 191  36;
+    /* Texto sobre fondo de marca (invariante — el hero siempre es teal) */
+    --sobre-marca:      204 251 241;
+    /* Estado: error                     rose-400 / rose-950 / rose-800 / rose-900 */
+    --error:            251 113 133;
+    --error-fondo:       76   5  25;
+    --error-borde:      159  18  57;
+    --error-tenue:      136  19  55;
+    /* Estado: éxito                     emerald-400 / emerald-900 */
+    --exito:             52 211 153;
+    --exito-fondo:        6  78  59;
+    /* Estado: aviso                     amber-400 / amber-900 */
+    --aviso:            251 191  36;
+    --aviso-fondo:      120  53  15;
+  }
+
+  * {
+    @apply border-borde;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Inputs / selects en modo oscuro */
+.dark input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+.dark select,
+.dark textarea {
+  background-color: rgb(var(--fondo-input)) !important;
+  color:            rgb(var(--principal))   !important;
+  border-color:     rgb(var(--borde));
+  color-scheme: dark;
+}
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.75rem;
+}
+
+.dark .skeleton {
+  background: linear-gradient(90deg,
+    rgb(var(--fondo-input)) 25%,
+    rgb(var(--borde))       50%,
+    rgb(var(--fondo-input)) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* Animaciones de entrada */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.animate-slide-up   { animation: slideUp   0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in    { animation: fadeIn    0.3s ease-out both; }
+.animate-scale-in   { animation: scaleIn   0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-pulse-soft { animation: pulseSoft 1.6s ease-in-out infinite; }
+
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* Spinner de carga */
+.spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
