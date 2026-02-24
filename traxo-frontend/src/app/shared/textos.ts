@@ -140,6 +140,14 @@ export const TEXTOS_NAV = {
   cerrarSesion: 'Cerrar Sesión',
 } as const;
 
+export const TEXTOS_SOPORTE = {
+  ariaBoton:  'Soporte y contacto',
+  titulo:     'Soporte y contacto',
+  mensaje:    '¿Tienes dudas, sugerencias o alguna queja?\nEscríbenos y te respondemos a la brevedad.',
+  email:      'soporte@traxo.mx',
+  cerrar:     'Cerrar',
+} as const;
+
 export const TEXTOS_AVISO = {
   titulo: 'Aviso de Privacidad',
   tituloPagina: 'Traxo — Aviso de Privacidad',
