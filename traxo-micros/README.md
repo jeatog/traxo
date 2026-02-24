@@ -2,6 +2,7 @@
 
 Microservicios Python de Traxo. Expone:
 - Una API para rastrear transferencias SPEI consultando el portal de Banxico mediante automatización de navegador con Playwright.
+- Un endpoint de OCR que analiza comprobantes bancarios y extrae los campos necesarios para el rastreo.
 
 ---
 
@@ -17,6 +18,11 @@ Microservicios Python de Traxo. Expone:
 | pandas + lxml | 2.2.3 / 5.3.0 | Parsing de XML (CEP descargado) |
 | SlowAPI | 0.1.9 | Rate limiting por IP |
 | Pydantic | v2 (via FastAPI) | Validación de esquemas de entrada/salida |
+| EasyOCR | 1.7.2 | OCR de comprobantes (español + inglés, CPU) |
+| OpenCV Headless | 4.13.0.92 | Preprocesado de imagen para OCR |
+| Pillow | 12.1.1 | Redimensionado y ajuste de contraste |
+| anthropic | 0.83.0 | Claude Haiku Vision para clave de rastreo |
+| python-dotenv | 1.2.1 | Carga de variables de entorno desde `.env` |
 | pytest + pytest-asyncio | 8.3.4 / 0.25.2 | Tests de integración |
 
 ---
@@ -45,8 +51,11 @@ La separación en un microservicio independiente tiene dos razones:
 app/
 ├── api.py                  # Aplicación FastAPI: lifespan, endpoints, seguridad, rate limiting
 ├── scraper_spei.py         # Lógica de scraping: interacción con Playwright y parsing
+├── ocr.py                  # Pipeline OCR: preprocesado, EasyOCR, Claude Haiku Vision, parsing de campos
+├── reglas_bancos.py        # Heurísticas y correcciones específicas por banco (ver REGLAS_BANCOS.md)
 └── modelos/
-    └── modelos_spei.py     # Modelos Pydantic (request/response) y excepciones de dominio
+    ├── modelos_spei.py     # Modelos Pydantic (request/response) y excepciones de dominio
+    └── modelos_ocr.py      # OcrRespuesta: campos extraídos y lista de faltantes
 ```
 
 ### Pool de páginas
@@ -79,6 +88,25 @@ Apagado:
 ```
 
 Las páginas bloquean recursos no esenciales (fuentes, imágenes, favicons) para minimizar el tiempo de carga.
+
+### OCR de comprobantes
+
+El endpoint `/ocr/analizar` extrae los campos SPEI de una imagen de comprobante bancario.
+
+**Pipeline:**
+```
+imagen → preprocesado (escala de grises, contraste ×1.5, ancho máx 1500px)
+       → EasyOCR (texto)
+       → parsear_campos_spei() (regex por campo)
+       → Claude Haiku Vision (solo clave de rastreo, si el banco lo requiere)
+       → postprocesar_clave() (correcciones específicas por banco)
+       → OcrRespuesta
+```
+
+**Campos extraídos:** `fechaOperacion`, `monto`, `claveRastreo`, `emisor`, `receptor`.
+`cuentaBeneficiaria` siempre se devuelve vacía — el usuario la ingresa manualmente.
+
+Las reglas de corrección por banco (qué bancos activan Vision, cómo corregir la clave de rastreo) están documentadas en [`REGLAS_BANCOS.md`](REGLAS_BANCOS.md).
 
 ---
 
@@ -209,9 +237,41 @@ Solo disponible para transferencias liquidadas. Banxico emite el Comprobante Ele
 
 ---
 
+### `POST /ocr/analizar`
+
+Analiza un comprobante de transferencia bancaria y extrae los campos SPEI.
+
+**Headers requeridos:** `x-internal-key: <MICROS_API_KEY>`
+
+**Request:** `multipart/form-data`, campo `imagen` (JPG, PNG o WEBP, máx 10 MB).
+
+**Response `200`:**
+```json
+{
+  "campos": {
+    "fechaOperacion": "2026-02-20",
+    "monto": "235.00",
+    "claveRastreo": "MBAN01001234567890",
+    "emisor": "BANAMEX",
+    "receptor": "BBVA MEXICO",
+    "cuentaBeneficiaria": null
+  },
+  "faltantes": ["cuentaBeneficiaria"]
+}
+```
+
+| Status | Descripción |
+|---|---|
+| `401` | API key inválida |
+| `413` | Imagen mayor a 10 MB |
+| `422` | Tipo de archivo no soportado (solo JPG, PNG, WEBP) |
+| `500` | Error interno al procesar la imagen |
+
+---
+
 ## Seguridad
 
-Las rutas `/bancos` y `/rastreo-spei` requieren el header `x-internal-key` con el valor de `MICROS_API_KEY`. Si la variable no está configurada (entorno de desarrollo), la validación se omite.
+Las rutas `/bancos`, `/rastreo-spei` y `/ocr/analizar` requieren el header `x-internal-key` con el valor de `MICROS_API_KEY`. Si la variable no está configurada (entorno de desarrollo), la validación se omite.
 
 ---
 
@@ -220,6 +280,7 @@ Las rutas `/bancos` y `/rastreo-spei` requieren el header `x-internal-key` con e
 | Variable | Descripción |
 |---|---|
 | `MICROS_API_KEY` | Clave compartida con el backend para autenticar peticiones internas |
+| `ANTHROPIC_API_KEY` | Clave de API de Anthropic para Claude Haiku Vision. Opcional pero recomendada — mejora la lectura de la clave de rastreo en bancos como Azteca. Sin ella el OCR funciona solo con EasyOCR. |
 
 Para tests de integración (opcionales):
 

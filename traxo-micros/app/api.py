@@ -4,7 +4,10 @@ import logging
 import os
 import re
 from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from dotenv import load_dotenv
+
+load_dotenv()  # carga .env si existe (no sobreescribe vars ya seteadas en el entorno)
+from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -16,7 +19,9 @@ from app.modelos.modelos_spei import (
     TransaccionNoEncontradaError,
     ServicioBanxicoError,
 )
+from app.modelos.modelos_ocr import OcrRespuesta
 from app.scraper_spei import rastrear
+from app.ocr import inicializar_lector, extraer_texto, parsear_campos_spei, extraer_clave_con_vision
 
 _CLAVE_INTERNA = os.environ.get("MICROS_API_KEY", "")
 
@@ -97,6 +102,10 @@ async def _replenish_pool(page, pool, browser):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Inicializar EasyOCR en un hilo separado para no bloquear el event loop
+    logger.info("Inicializando lector OCR...")
+    app.state.ocr_reader = await asyncio.to_thread(inicializar_lector)
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         app.state.browser = browser
@@ -206,3 +215,55 @@ async def realizar_rastreo_spei(peticion: RastreoPeticion, request: Request) -> 
         asyncio.create_task(
             _replenish_pool(page, request.app.state.page_pool, request.app.state.browser)
         )
+
+
+_CONTENT_TYPES_PERMITIDOS = {"image/jpeg", "image/png", "image/webp"}
+_MAX_TAMANO_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
+@app.post(
+    "/ocr/analizar",
+    response_model=OcrRespuesta,
+    tags=["OCR"],
+    dependencies=[Depends(verificar_clave_interna)],
+    responses={
+        401: {"description": "Clave interna inválida."},
+        413: {"description": "Imagen demasiado grande (máx 10 MB)."},
+        422: {"description": "Tipo de archivo no soportado."},
+        500: {"description": "Error interno al procesar la imagen."},
+    },
+)
+async def analizar_comprobante(
+    request: Request,
+    imagen: UploadFile = File(...),
+) -> OcrRespuesta:
+    """
+    Analiza un comprobante de transferencia bancaria con OCR y extrae los campos SPEI.
+    Acepta imágenes JPG, PNG o WEBP de hasta 10 MB.
+    Retorna los campos extraídos y la lista de campos no encontrados.
+    """
+    if imagen.content_type not in _CONTENT_TYPES_PERMITIDOS:
+        raise HTTPException(status_code=422, detail="Solo se aceptan imágenes JPG, PNG o WEBP.")
+
+    datos = await imagen.read()
+    if len(datos) > _MAX_TAMANO_BYTES:
+        raise HTTPException(status_code=413, detail="Imagen demasiado grande (máx 10 MB).")
+
+    try:
+        lector = request.app.state.ocr_reader
+        bancos = list(request.app.state.codigos_banco.keys())
+        lineas = await asyncio.to_thread(extraer_texto, datos, lector)
+        campos, faltantes = parsear_campos_spei(lineas, bancos)
+
+        # Claude Vision sobreescribe la clave de rastreo si ANTHROPIC_API_KEY está configurada.
+        clave_vision = await asyncio.to_thread(
+            extraer_clave_con_vision, datos, imagen.content_type or 'image/jpeg', campos.get('emisor')
+        )
+        if clave_vision:
+            campos['claveRastreo'] = clave_vision
+            faltantes = [c for c in campos if not campos[c]]
+
+        return OcrRespuesta(campos=campos, faltantes=faltantes)
+    except Exception as e:
+        logger.error(f"Error al procesar imagen OCR: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error al procesar la imagen.")

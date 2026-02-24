@@ -5,6 +5,17 @@ pandas==2.2.3
 lxml==5.3.0
 playwright==1.49.1
 
+# OCR
+anthropic==0.83.0
+easyocr==1.7.2
+opencv-python-headless==4.13.0.92
+Pillow==12.1.1
+numpy==2.4.2
+python-multipart==0.0.22
+
+# Environment
+python-dotenv==1.2.1
+
 # Security
 slowapi==0.1.9
 
