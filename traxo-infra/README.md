@@ -9,7 +9,7 @@ Configuración de contenedores Docker para el stack completo: base de datos, bac
 |------------|--------------------------|:--------------:|-------------|  
 | `postgres` | `postgres:16-alpine`     | 5432           | Base de datos. Volumen persistente `postgres_data`. |  
 | `backend`  | `eclipse-temurin:21-jre` | 8080           | API REST Spring Boot. Aplica migraciones Flyway al arrancar. |  
-| `micros`   | `python:3.12-slim`       | 3000           | FastAPI + Playwright. Mantiene un pool de páginas de Chromium precargadas. |  
+| `micros`   | `python:3.12-slim`       | 3000           | FastAPI + Playwright. Pool de páginas de Chromium precargadas para scraping de Banxico. OCR de comprobantes con EasyOCR y Claude Haiku Vision. |  
 | `frontend` | `nginx:alpine`           | 80             | Distribución estática de Angular. |  
 | `nginx`    | `nginx:alpine`           | 80, 443        | Reverse proxy. TLS termination. Redirige `/api/*` al backend y `/*` al frontend. |  
   
@@ -47,7 +47,15 @@ El compose tiene `restart: unless-stopped` en todos los servicios, por lo que se
 
 ### Variables de entorno (.env)
 
-Copiar `.env.example` como `.env` y completar los valores. El único que no tiene default y cuyo valor importa en seguridad es `JWT_SECRETO`. Generar uno seguro con:
+Copiar `.env.example` como `.env` y completar los valores.
+
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `JWT_SECRETO` | Sí | Clave secreta para firmar tokens JWT. |
+| `MICROS_API_KEY` | Recomendada | Clave compartida entre backend y micros. |
+| `ANTHROPIC_API_KEY` | Opcional | Mejora el OCR de claves de rastreo con Claude Haiku Vision. Sin ella el OCR funciona solo con EasyOCR. |
+
+Generar `JWT_SECRETO` con:
 
 ```bash
 openssl rand -base64 48
