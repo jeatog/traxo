@@ -148,7 +148,7 @@ export const TEXTOS_AVISO = {
   seccionNunca: 'Datos que NUNCA almacenamos',
   seccionArco: 'Tus derechos (ARCO)',
   arcoTexto1: 'Puedes ejercer tus derechos de Acceso, Rectificación, Cancelación u Oposición escribiendo a',
-  arcoEmail: 'privacidad@traxo.mx',
+  arcoEmail: 'soporte@traxo.mx',
   arcoTexto2: 'Tambien puedes eliminar tu cuenta desde la sección',
   arcoSeccionPerfil: 'Perfil',
   arcoTexto2Fin: 'lo que borra todos tus datos de forma inmediata e irreversible.',
