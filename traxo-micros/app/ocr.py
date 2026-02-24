@@ -1,4 +1,5 @@
 
+import gc
 import io
 import logging
 import re
@@ -63,16 +64,22 @@ def extraer_texto(imagen_bytes: bytes, lector) -> list[str]:
     """
     img = Image.open(io.BytesIO(imagen_bytes)).convert('RGB')
 
-    max_ancho = 1500
+    max_ancho = 1000
     if img.width > max_ancho:
         factor = max_ancho / img.width
         img = img.resize((max_ancho, int(img.height * factor)), Image.LANCZOS)
 
     gris = img.convert('L')
+    img.close()
     realzada = ImageEnhance.Contrast(gris).enhance(1.5)
+    gris.close()
     arr = np.array(realzada)
+    realzada.close()
 
     resultados = lector.readtext(arr, detail=0, paragraph=False)
+    del arr
+    gc.collect()
+
     return [str(r).strip() for r in resultados if str(r).strip()]
 
 
