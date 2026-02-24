@@ -46,6 +46,3 @@ management:
     health:
       show-details: never
 
-logging:
-  level:
-    mx.traxo: INFO

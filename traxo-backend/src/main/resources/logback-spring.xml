@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Registra %clr y otros conversores de Spring Boot -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level){highlight} [%clr(%t){magenta}] %clr(%logger{36}){cyan} %L : %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Framework (Spring, Hibernate, etc.): solo WARN para reducir ruido -->
+    <root level="WARN">
+        <appender-ref ref="Console" />
+    </root>
+
+    <!-- Código propio: INFO -->
+    <logger name="mx.traxo" level="INFO" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+</configuration>
