@@ -36,6 +36,20 @@ export class RastreoComponent implements OnInit {
   // Lista de bancos cargada desde el servidor
   readonly bancos        = signal<string[]>([]);
 
+  // Estado del análisis OCR
+  readonly analizandoOcr  = signal(false);
+  readonly errorOcr       = signal(false);
+  readonly faltantes      = signal<string[]>([]);
+
+  readonly etiquetasCampo: Record<string, string> = {
+    fechaOperacion:     TEXTOS_RASTREO.etiquetaFecha,
+    monto:              TEXTOS_RASTREO.etiquetaMonto,
+    claveRastreo:       TEXTOS_RASTREO.etiquetaClaveRastreo,
+    emisor:             TEXTOS_RASTREO.etiquetaBancoEmisor,
+    receptor:           TEXTOS_RASTREO.etiquetaBancoReceptor,
+    cuentaBeneficiaria: TEXTOS_RASTREO.etiquetaCuenta,
+  };
+
   readonly formulario: FormGroup;
 
   constructor(
@@ -78,11 +92,24 @@ export class RastreoComponent implements OnInit {
   }
 
   seleccionarArchivo(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const archivo = input.files?.[0];
+    const archivo = (event.target as HTMLInputElement).files?.[0];
     if (!archivo) return;
     this.archivoNombre.set(archivo.name);
-    // TODO: llamar al servicio OCR cuando esté disponible
+    this.analizandoOcr.set(true);
+    this.errorOcr.set(false);
+    this.faltantes.set([]);
+    this.rastreoService.analizarComprobante(archivo).subscribe({
+      next: res => {
+        this.formulario.patchValue(res.campos);
+        this.faltantes.set(res.faltantes);
+        this.analizandoOcr.set(false);
+        this.modoEntrada.set('manual');
+      },
+      error: () => {
+        this.errorOcr.set(true);
+        this.analizandoOcr.set(false);
+      },
+    });
   }
 
   consultar(): void {
@@ -120,6 +147,8 @@ export class RastreoComponent implements OnInit {
     this.guardado.set(false);
     this.errorGuardado.set(false);
     this.archivoNombre.set(null);
+    this.faltantes.set([]);
+    this.errorOcr.set(false);
     this.formulario.reset({ datosCompletos: false });
   }
 

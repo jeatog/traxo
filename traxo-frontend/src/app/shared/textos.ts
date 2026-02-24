@@ -24,17 +24,20 @@ export const TEXTOS_RASTREO = {
   etiquetaMonto: 'Monto',
   etiquetaClaveRastreo: 'Clave de rastreo',
   ocrExito: 'Datos extraídos del comprobante. Verifica antes de consultar.',
-  ocrError: 'No se pudieron extraer los datos. Inténtalo manualmente.',
   enlaceLogin: 'Iniciar Sesión',
   modoComprobante: 'Comprobante',
   modoManual: 'Manual',
   uploadHint: 'Arrastra tu comprobante o toca para seleccionar',
-  uploadFormatos: 'JPG · PNG · PDF',
-  uploadProximamente: 'La extracción automática estará disponible pronto.',
+  uploadFormatos: 'JPG · PNG · WEBP',
   uploadBoton: 'Seleccionar archivo',
+  uploadTipCampos: 'Asegúrate de que el comprobante muestre claramente: fecha, monto, clave de rastreo y bancos emisor y receptor.',
   ingresarManual: 'Ingresar datos manualmente',
   etiquetaDatosCompletos: 'Datos completos',
   hintDatosCompletos: 'Incluye nombre del ordenante, beneficiario y concepto (más lento)',
+  ocrAnalizando: 'Analizando comprobante…',
+  ocrError: 'No se pudo analizar la imagen. Ingrésalos manualmente.',
+  ocrFaltantesTitulo: 'No se pudieron leer los siguientes datos:',
+  ocrFaltantesHint: 'Por favor, ingrésalos manualmente.',
 } as const;
 
 export const TEXTOS_RESULTADO = {

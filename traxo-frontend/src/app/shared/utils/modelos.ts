@@ -1,5 +1,17 @@
 export type EstadoTransferencia = 'LIQUIDADA' | 'RECHAZADA' | 'EN_PROCESO' | 'NO_ENCONTRADA';
 
+export interface OcrRespuesta {
+  campos: {
+    fechaOperacion?: string;
+    monto?: string;
+    claveRastreo?: string;
+    emisor?: string;
+    receptor?: string;
+    cuentaBeneficiaria?: string;
+  };
+  faltantes: string[];
+}
+
 export interface ResultadoRastreo {
   estado: EstadoTransferencia;
   fechaOperacion: string;

@@ -201,7 +201,7 @@
 
           <!-- Zona de carga -->
           <label class="block cursor-pointer">
-            <input type="file" accept="image/*,.pdf" class="sr-only"
+            <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only"
                    (change)="seleccionarArchivo($event)"/>
             <div class="border-2 border-dashed border-borde rounded-2xl p-8 flex flex-col items-center
                         gap-3 hover:border-primario hover:bg-primario-tenue/30 transition-all duration-200">
@@ -227,16 +227,28 @@
             </div>
           </label>
 
-          <!-- Aviso "próximamente" -->
-           <!-- TODO: Remover esto cuando esté el OCR porque es estático -->
-          <div class="flex items-start gap-3 bg-aviso-fondo rounded-2xl px-4 py-3">
-            <svg class="w-4 h-4 text-aviso flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <p class="text-xs text-aviso leading-relaxed">{{ TEXTOS.uploadProximamente }}</p>
-          </div>
+          <!-- Tip: campos necesarios -->
+          @if (!analizandoOcr() && !archivoNombre()) {
+            <p class="text-xs text-atenuado text-center leading-relaxed px-2">{{ TEXTOS.uploadTipCampos }}</p>
+          }
+
+          <!-- Estado del análisis OCR -->
+          @if (analizandoOcr()) {
+            <div class="flex items-center justify-center gap-3 bg-fondo-input rounded-2xl px-4 py-3 animate-fade-in">
+              <span class="spinner"></span>
+              <p class="text-sm text-secundario">{{ TEXTOS.ocrAnalizando }}</p>
+            </div>
+          }
+          @if (errorOcr()) {
+            <div class="flex items-start gap-3 bg-error-fondo border border-error-borde rounded-2xl px-4 py-3 animate-scale-in">
+              <svg class="w-4 h-4 text-error flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+                   stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-xs text-error leading-relaxed">{{ TEXTOS.ocrError }}</p>
+            </div>
+          }
 
           <!-- Botón para cambiar a manual -->
           <button type="button" (click)="modoEntrada.set('manual')"
@@ -250,6 +262,19 @@
       <!-- Modo: Manual -->
       @if (modoEntrada() === 'manual') {
         <form [formGroup]="formulario" (ngSubmit)="consultar()" class="p-6 space-y-4 animate-slide-up">
+
+          <!-- Banner de campos no detectados por OCR -->
+          @if (faltantes().length > 0) {
+            <div class="rounded-2xl bg-aviso-fondo border border-aviso/30 px-4 py-3 text-sm animate-scale-in">
+              <p class="font-semibold text-aviso mb-1">{{ TEXTOS.ocrFaltantesTitulo }}</p>
+              <ul class="list-disc list-inside space-y-0.5 text-aviso/80">
+                @for (c of faltantes(); track c) {
+                  <li>{{ etiquetasCampo[c] || c }}</li>
+                }
+              </ul>
+              <p class="mt-1.5 text-aviso/70 text-xs">{{ TEXTOS.ocrFaltantesHint }}</p>
+            </div>
+          }
 
           <div class="space-y-1">
             <label class="text-xs font-semibold text-atenuado uppercase tracking-wider">

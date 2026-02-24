@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ResultadoRastreo } from '../../shared/utils/modelos';
+import { OcrRespuesta, ResultadoRastreo } from '../../shared/utils/modelos';
 
 export interface RastreoPeticion {
   fechaOperacion: string;
@@ -31,5 +31,11 @@ export class RastreoService {
 
   guardar(peticion: GuardarConsultaPeticion): Observable<unknown> {
     return this.http.post(`${this.url}/guardar`, peticion);
+  }
+
+  analizarComprobante(archivo: File): Observable<OcrRespuesta> {
+    const form = new FormData();
+    form.append('imagen', archivo);
+    return this.http.post<OcrRespuesta>(`${this.url}/ocr`, form);
   }
 }

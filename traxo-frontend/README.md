@@ -64,8 +64,8 @@ src/app/
 │   │       ├── registro/          # Formulario de creación de cuenta
 │   │       └── perfil/            # Editar nombre, contraseña, eliminar cuenta
 │   ├── rastreo/
-│   │   ├── rastreo.service.ts     # POST /api/rastreo, POST /api/rastreo/guardar
-│   │   └── paginas/rastreo/       # Formulario de rastreo SPEI y pantalla de resultado
+│   │   ├── rastreo.service.ts     # POST /api/rastreo, POST /api/rastreo/guardar, POST /api/rastreo/ocr
+│   │   └── paginas/rastreo/       # Formulario de rastreo SPEI con OCR de comprobante y pantalla de resultado
 │   ├── historial/
 │   │   ├── historial.service.ts   # GET /api/historial, DELETE /api/historial/:id
 │   │   └── paginas/historial/     # Lista de consultas guardadas con opción de borrar
@@ -104,6 +104,7 @@ El estado se maneja con la API nativa de Signals de Angular 19. No hay store ext
 - `AuthService.estaAutenticado` — señal computada basada en el token en memoria
 - `TemaService.esModoOscuro` — persiste en `localStorage` y respeta `prefers-color-scheme`
 - Componentes usan señales locales (`signal()`) para estados de carga, errores y éxitos
+- `RastreoComponent`: señales para estado OCR (`analizandoOcr`, `errorOcr`, `faltantes`) — el formulario se pre-llena con los campos extraídos del comprobante
 
 ### PWA
 
