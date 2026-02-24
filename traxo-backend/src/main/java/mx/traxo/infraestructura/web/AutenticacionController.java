@@ -32,17 +32,17 @@ public class AutenticacionController {
     @PostMapping("/registro")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, String> registro(@Valid @RequestBody RegistroRequestDto dto) {
-        log.info("Registrando usuario → email={}", dto.email());
+        log.info("Registrando usuario ->email={}", dto.email());
         Usuario usuario = registrarUsuario.registrar(dto.nombre(), dto.email(), dto.contrasena());
-        log.info("Usuario registrado → id={}", usuario.id());
+        log.info("Usuario registrado ->id={}", usuario.id());
         return Map.of("id", usuario.id().toString(), "email", usuario.email());
     }
 
     @PostMapping("/login")
     public TokenResponseDto login(@Valid @RequestBody LoginRequestDto dto) {
-        log.info("Autenticando → email={}", dto.email());
+        log.info("Autenticando ->email={}", dto.email());
         String token = autenticarUsuario.autenticar(dto.email(), dto.contrasena());
-        log.info("Autenticación exitosa → email={}", dto.email());
+        log.info("Autenticación exitosa ->email={}", dto.email());
         return TokenResponseDto.bearer(token);
     }
 }

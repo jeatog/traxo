@@ -29,12 +29,12 @@ public class HistorialController {
 
     @GetMapping
     public List<ConsultaResponseDto> obtener(@AuthenticationPrincipal UUID idUsuario) {
-        log.info("Obteniendo historial → idUsuario={}", idUsuario);
+        log.info("Obteniendo historial ->idUsuario={}", idUsuario);
         List<ConsultaResponseDto> historial = obtenerHistorial.obtenerPorUsuario(idUsuario)
                 .stream()
                 .map(ConsultaResponseDto::desde)
                 .toList();
-        log.info("Historial obtenido → {} consultas", historial.size());
+        log.info("Historial obtenido ->{} consultas", historial.size());
         return historial;
     }
 
@@ -42,8 +42,8 @@ public class HistorialController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable UUID id,
                          @AuthenticationPrincipal UUID idUsuario) {
-        log.info("Eliminando consulta → id={}, idUsuario={}", id, idUsuario);
+        log.info("Eliminando consulta ->id={}, idUsuario={}", id, idUsuario);
         eliminarConsulta.eliminar(id, idUsuario);
-        log.info("Consulta eliminada → id={}", id);
+        log.info("Consulta eliminada ->id={}", id);
     }
 }

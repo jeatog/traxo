@@ -25,7 +25,7 @@ public class BancosController {
     public List<String> listar() {
         log.info("Listando bancos disponibles");
         List<String> bancos = speiGateway.obtenerBancos();
-        log.info("Bancos obtenidos → {} bancos", bancos.size());
+        log.info("Bancos obtenidos ->{} bancos", bancos.size());
         return bancos;
     }
 }

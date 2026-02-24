@@ -28,18 +28,18 @@ public class PerfilController {
 
     @GetMapping
     public Map<String, String> obtenerPerfil(@AuthenticationPrincipal UUID idUsuario) {
-        log.info("Obteniendo perfil → idUsuario={}", idUsuario);
+        log.info("Obteniendo perfil ->idUsuario={}", idUsuario);
         Usuario usuario = actualizarPerfil.obtenerPerfil(idUsuario);
-        log.info("Perfil obtenido → email={}", usuario.email());
+        log.info("Perfil obtenido ->email={}", usuario.email());
         return Map.of("nombre", usuario.nombre(), "email", usuario.email());
     }
 
     @PatchMapping("/nombre")
     public Map<String, String> actualizarNombre(@Valid @RequestBody ActualizarNombreRequestDto dto,
                                                  @AuthenticationPrincipal UUID idUsuario) {
-        log.info("Actualizando nombre → idUsuario={}", idUsuario);
+        log.info("Actualizando nombre ->idUsuario={}", idUsuario);
         Usuario usuario = actualizarPerfil.actualizarNombre(idUsuario, dto.nombre());
-        log.info("Nombre actualizado → {}", usuario.nombre());
+        log.info("Nombre actualizado ->{}", usuario.nombre());
         return Map.of("nombre", usuario.nombre());
     }
 
@@ -47,16 +47,16 @@ public class PerfilController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cambiarContrasena(@Valid @RequestBody CambiarContrasenaRequestDto dto,
                                    @AuthenticationPrincipal UUID idUsuario) {
-        log.info("Cambiando contraseña → idUsuario={}", idUsuario);
+        log.info("Cambiando contraseña ->idUsuario={}", idUsuario);
         actualizarPerfil.cambiarContrasena(idUsuario, dto.contrasenaActual(), dto.contrasenaNueva());
-        log.info("Contraseña cambiada → idUsuario={}", idUsuario);
+        log.info("Contraseña cambiada ->idUsuario={}", idUsuario);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarCuenta(@AuthenticationPrincipal UUID idUsuario) {
-        log.info("Eliminando cuenta → idUsuario={}", idUsuario);
+        log.info("Eliminando cuenta ->idUsuario={}", idUsuario);
         actualizarPerfil.eliminarCuenta(idUsuario);
-        log.info("Cuenta eliminada → idUsuario={}", idUsuario);
+        log.info("Cuenta eliminada ->idUsuario={}", idUsuario);
     }
 }

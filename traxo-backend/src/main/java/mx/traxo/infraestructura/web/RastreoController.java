@@ -40,14 +40,14 @@ public class RastreoController {
 
     @PostMapping
     public RastreoResponseDto rastrear(@Valid @RequestBody RastreoRequestDto dto) {
-        log.info("Rastreando SPEI → {}", dto);
+        log.info("Rastreando SPEI ->{}", dto);
         ResultadoRastreo resultado = rastrearSpei.rastrear(
                 dto.fechaOperacion(), dto.monto(), dto.claveRastreo(),
                 dto.emisor(), dto.receptor(), dto.cuentaBeneficiaria(),
                 dto.datosCompletos()
         );
         RastreoResponseDto respuesta = RastreoResponseDto.desde(resultado);
-        log.info("Rastreo completado → estado={}", respuesta.estado());
+        log.info("Rastreo completado ->estado={}", respuesta.estado());
         return respuesta;
     }
 
@@ -55,7 +55,7 @@ public class RastreoController {
     @ResponseStatus(HttpStatus.CREATED)
     public ConsultaResponseDto guardar(@Valid @RequestBody GuardarConsultaRequestDto dto,
                                        @AuthenticationPrincipal UUID idUsuario) {
-        log.info("Guardando consulta → idUsuario={}, alias={}", idUsuario, dto.alias());
+        log.info("Guardando consulta ->idUsuario={}, alias={}", idUsuario, dto.alias());
         RastreoResponseDto r = dto.resultado();
         // nombreEmisor/nombreReceptor no se persisten
         ResultadoRastreo resultado = new ResultadoRastreo(
@@ -64,15 +64,15 @@ public class RastreoController {
                 null, null, r.concepto()
         );
         ConsultaResponseDto respuesta = ConsultaResponseDto.desde(guardarConsulta.guardar(idUsuario, resultado, dto.alias()));
-        log.info("Consulta guardada → id={}", respuesta.id());
+        log.info("Consulta guardada ->id={}", respuesta.id());
         return respuesta;
     }
 
     @PostMapping(value = "/ocr", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public OcrRespuestaDto ocr(@RequestParam("imagen") MultipartFile imagen) {
-        log.info("Analizando comprobante OCR → {}", imagen.getOriginalFilename());
+        log.info("Analizando comprobante OCR ->{}", imagen.getOriginalFilename());
         OcrRespuestaDto respuesta = speiGateway.analizarComprobante(imagen);
-        log.info("OCR completado → faltantes={}", respuesta.faltantes());
+        log.info("OCR completado ->faltantes={}", respuesta.faltantes());
         return respuesta;
     }
 }
