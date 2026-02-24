@@ -25,6 +25,7 @@ public class FiltroLogRestApi implements ExchangeFilterFunction {
         log.info("URI     : {}", peticion.url());
         log.info("Metodo  : {}", peticion.method());
         log.info("Headers : {}", peticion.headers());
+        peticion.attribute("logBody").ifPresent(body -> log.info("Body    : {}", body));
         log.info("== PETICION MICROS END =================================================");
     }
 

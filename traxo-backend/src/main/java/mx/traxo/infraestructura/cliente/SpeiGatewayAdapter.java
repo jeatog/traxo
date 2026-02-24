@@ -63,11 +63,10 @@ public class SpeiGatewayAdapter implements SpeiGateway {
                 datosCompletos
         );
 
-        log.info("Body    : {}", peticion);
-
         try {
             RastreoRespuestaDto respuesta = webClient.post()
                     .uri("/rastreo-spei")
+                    .attribute("logBody", peticion)
                     .bodyValue(peticion)
                     .retrieve()
                     .bodyToMono(RastreoRespuestaDto.class)
@@ -122,6 +121,7 @@ public class SpeiGatewayAdapter implements SpeiGateway {
 
             return webClient.post()
                     .uri("/ocr/analizar")
+                    .attribute("logBody", "multipart/form-data archivo=" + filename)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(BodyInserters.fromMultipartData(body.build()))
                     .retrieve()
