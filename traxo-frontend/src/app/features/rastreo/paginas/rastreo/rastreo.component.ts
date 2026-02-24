@@ -30,7 +30,7 @@ export class RastreoComponent implements OnInit {
   readonly errorGuardado  = signal(false);
 
   // Modo de entrada: comprobante (OCR) o manual
-  readonly modoEntrada   = signal<'comprobante' | 'manual'>('manual');
+  readonly modoEntrada   = signal<'comprobante' | 'manual'>('comprobante');
   // Nombre del archivo seleccionado (preview)
   readonly archivoNombre = signal<string | null>(null);
   // Lista de bancos cargada desde el servidor
