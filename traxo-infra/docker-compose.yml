@@ -59,6 +59,7 @@ services:
     restart: unless-stopped
     environment:
       MICROS_API_KEY: ${MICROS_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
       interval: 15s
