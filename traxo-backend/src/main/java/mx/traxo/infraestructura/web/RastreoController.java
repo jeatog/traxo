@@ -4,13 +4,17 @@ import jakarta.validation.Valid;
 import mx.traxo.dominio.modelo.ResultadoRastreo;
 import mx.traxo.dominio.puerto.entrada.GuardarConsultaCasoUso;
 import mx.traxo.dominio.puerto.entrada.RastrearSpeiCasoUso;
+import mx.traxo.dominio.puerto.salida.SpeiGateway;
 import mx.traxo.infraestructura.web.dto.ConsultaResponseDto;
 import mx.traxo.infraestructura.web.dto.GuardarConsultaRequestDto;
+import mx.traxo.infraestructura.web.dto.OcrRespuestaDto;
 import mx.traxo.infraestructura.web.dto.RastreoRequestDto;
 import mx.traxo.infraestructura.web.dto.RastreoResponseDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -20,11 +24,14 @@ public class RastreoController {
 
     private final RastrearSpeiCasoUso rastrearSpei;
     private final GuardarConsultaCasoUso guardarConsulta;
+    private final SpeiGateway speiGateway;
 
     public RastreoController(RastrearSpeiCasoUso rastrearSpei,
-                             GuardarConsultaCasoUso guardarConsulta) {
+                             GuardarConsultaCasoUso guardarConsulta,
+                             SpeiGateway speiGateway) {
         this.rastrearSpei = rastrearSpei;
         this.guardarConsulta = guardarConsulta;
+        this.speiGateway = speiGateway;
     }
 
     @PostMapping
@@ -49,5 +56,10 @@ public class RastreoController {
                 null, null, r.concepto()
         );
         return ConsultaResponseDto.desde(guardarConsulta.guardar(idUsuario, resultado, dto.alias()));
+    }
+
+    @PostMapping(value = "/ocr", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public OcrRespuestaDto ocr(@RequestParam("imagen") MultipartFile imagen) {
+        return speiGateway.analizarComprobante(imagen);
     }
 }

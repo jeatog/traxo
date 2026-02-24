@@ -234,6 +234,29 @@ Con `datosCompletos: true`, `nombreEmisor`, `nombreReceptor` y `concepto` se pop
 
 ---
 
+#### `POST /api/rastreo/ocr`
+Analiza un comprobante de transferencia bancaria con OCR y devuelve los campos SPEI extraídos. No requiere login (público). `multipart/form-data`.
+
+**Request:** campo `imagen` (JPG, PNG o WEBP, máx 10 MB).
+
+**Response `200`:**
+```json
+{
+  "campos": {
+    "fechaOperacion": "2026-02-20",
+    "monto": "235.00",
+    "claveRastreo": "MBAN01001234567890",
+    "emisor": "BANAMEX",
+    "receptor": "BBVA MEXICO",
+    "cuentaBeneficiaria": null
+  },
+  "faltantes": ["cuentaBeneficiaria"]
+}
+```
+Los campos en `faltantes` no pudieron leerse de la imagen; el usuario los completa manualmente. `cuentaBeneficiaria` siempre es `null` (el usuario la ingresa por seguridad).
+
+---
+
 #### `POST /api/rastreo/guardar`
 Persiste el resultado de un rastreo en el historial del usuario. Requiere JWT.
 

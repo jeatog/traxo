@@ -1,6 +1,8 @@
 package mx.traxo.dominio.puerto.salida;
 
 import mx.traxo.dominio.modelo.ResultadoRastreo;
+import mx.traxo.infraestructura.web.dto.OcrRespuestaDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,4 +20,6 @@ public interface SpeiGateway {
     );
 
     List<String> obtenerBancos();
+
+    OcrRespuestaDto analizarComprobante(MultipartFile imagen);
 }

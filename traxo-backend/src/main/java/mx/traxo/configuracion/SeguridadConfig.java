@@ -36,6 +36,7 @@ public class SeguridadConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/registro", "/auth/login").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/rastreo").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/rastreo/ocr").permitAll()
                         .requestMatchers(HttpMethod.GET, "/bancos").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -3,15 +3,22 @@ package mx.traxo.infraestructura.cliente;
 import mx.traxo.dominio.modelo.EstadoTransferencia;
 import mx.traxo.dominio.modelo.ResultadoRastreo;
 import mx.traxo.dominio.puerto.salida.SpeiGateway;
+import mx.traxo.infraestructura.web.dto.OcrRespuestaDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -99,6 +106,37 @@ public class SpeiGatewayAdapter implements SpeiGateway {
         } catch (Exception e) {
             log.error("Error al obtener catálogo de bancos del microservicio.", e);
             throw new RuntimeException("No se pudo obtener el catálogo de bancos.", e);
+        }
+    }
+
+    @Override
+    public OcrRespuestaDto analizarComprobante(MultipartFile imagen) {
+        try {
+            String contentType = imagen.getContentType() != null ? imagen.getContentType() : "image/jpeg";
+            String filename    = imagen.getOriginalFilename() != null ? imagen.getOriginalFilename() : "imagen";
+
+            MultipartBodyBuilder body = new MultipartBodyBuilder();
+            body.part("imagen", new ByteArrayResource(imagen.getBytes()) {
+                @Override public String getFilename() { return filename; }
+            }, MediaType.parseMediaType(contentType));
+
+            return webClient.post()
+                    .uri("/ocr/analizar")
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(body.build()))
+                    .retrieve()
+                    .bodyToMono(OcrRespuestaDto.class)
+                    .block();
+
+        } catch (IOException e) {
+            log.error("No se pudo leer el archivo de imagen: {}", e.getMessage());
+            throw new RuntimeException("Error al leer la imagen del comprobante.", e);
+        } catch (WebClientResponseException e) {
+            log.error("Error del microservicio OCR: {} {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Error al analizar el comprobante.", e);
+        } catch (Exception e) {
+            log.error("Error inesperado al analizar comprobante con OCR.", e);
+            throw new RuntimeException("Error al analizar el comprobante.", e);
         }
     }
 
