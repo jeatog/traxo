@@ -140,6 +140,15 @@ export const TEXTOS_NAV = {
   cerrarSesion: 'Cerrar Sesión',
 } as const;
 
+export const TEXTOS_LANDING = {
+  tagline:        'Rastrea transferencias SPEI al instante',
+  descripcion:    'Sube tu comprobante bancario o ingresa los datos manualmente y verifica en segundos si tu transferencia fue liquidada.',
+  feature1:       'Gratis y sin registro',
+  feature2:       'Resultado en segundos',
+  feature3:       'Sin datos sensibles guardados',
+  ariaToggleTema: 'Cambiar tema',
+} as const;
+
 export const TEXTOS_SOPORTE = {
   ariaBoton:  'Soporte y contacto',
   titulo:     'Soporte y contacto',

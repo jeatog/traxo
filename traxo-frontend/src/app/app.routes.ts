@@ -5,7 +5,7 @@ import { guardiaRastreoPublico } from './core/guardias/rastreo-publico.guard';
 
 export const routes: Routes = [
   // Redirección raíz
-  { path: '', redirectTo: 'rastreo', pathMatch: 'full' },
+  { path: '', redirectTo: 'inicio', pathMatch: 'full' },
 
   {
     path: '',
@@ -32,6 +32,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./layouts/layout-publico/layout-publico.component').then(m => m.LayoutPublicoComponent),
     children: [
+      {
+        path: 'inicio',
+        loadComponent: () =>
+          import('./features/inicio/inicio.component').then(m => m.InicioComponent),
+      },
       {
         path: 'rastreo',
         canActivate: [guardiaRastreoPublico],
