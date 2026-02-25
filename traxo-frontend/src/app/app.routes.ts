@@ -1,11 +1,20 @@
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from './core/auth/auth.service';
 import { guardiaAutenticado } from './core/guardias/autenticado.guard';
 import { guardiaInvitado } from './core/guardias/invitado.guard';
 import { guardiaRastreoPublico } from './core/guardias/rastreo-publico.guard';
 
 export const routes: Routes = [
   // Redirección raíz
-  { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: () => {
+      const auth = inject(AuthService);
+      return auth.estaAutenticado() ? 'app/historial' : 'inicio';
+    },
+  },
 
   {
     path: '',
@@ -34,6 +43,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'inicio',
+        canActivate: [guardiaInvitado],
         loadComponent: () =>
           import('./features/inicio/inicio.component').then(m => m.InicioComponent),
       },
