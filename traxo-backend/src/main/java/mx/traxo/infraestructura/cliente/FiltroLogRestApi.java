@@ -16,7 +16,12 @@ public class FiltroLogRestApi implements ExchangeFilterFunction {
     public Mono<ClientResponse> filter(ClientRequest peticion, ExchangeFunction siguiente) {
         registrarPeticion(peticion);
         return siguiente.exchange(peticion)
-                .doOnNext(this::registrarRespuesta)
+                .flatMap(respuesta -> respuesta.bodyToMono(String.class)
+                        .defaultIfEmpty("")
+                        .map(body -> {
+                            registrarRespuesta(respuesta, body);
+                            return respuesta.mutate().body(body).build();
+                        }))
                 .doOnError(this::registrarError);
     }
 
@@ -29,10 +34,13 @@ public class FiltroLogRestApi implements ExchangeFilterFunction {
         log.info("== PETICION MICROS END =================================================");
     }
 
-    private void registrarRespuesta(ClientResponse respuesta) {
+    private void registrarRespuesta(ClientResponse respuesta, String body) {
         log.info("== RESPUESTA MICROS BEGIN ==============================================");
         log.info("Status  : {}", respuesta.statusCode());
         log.info("Headers : {}", respuesta.headers().asHttpHeaders());
+        if (body != null && !body.isBlank()) {
+            log.info("Body    : {}", body);
+        }
         log.info("== RESPUESTA MICROS END ================================================");
     }
 
