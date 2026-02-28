@@ -1,11 +1,11 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, APP_INITIALIZER, inject, isDevMode } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
-import { isDevMode } from '@angular/core';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptores/auth.interceptor';
 import { erroresInterceptor } from './core/interceptores/errores.interceptor';
+import { AuthService } from './core/auth/auth.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,5 +16,13 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => {
+        const auth = inject(AuthService);
+        return () => auth.verificarSesion();
+      },
+      multi: true,
+    },
   ],
 };
