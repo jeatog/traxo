@@ -39,12 +39,12 @@ Usuario
 src/app/
 ├── core/                          # Servicios y utilidades singleton
 │   ├── auth/
-│   │   └── auth.service.ts        # JWT en localStorage, señal de autenticación
+│   │   └── auth.service.ts        # Sesión via cookie HttpOnly; verifica sesión en APP_INITIALIZER
 │   ├── interceptores/
-│   │   ├── auth.interceptor.ts    # Adjunta Bearer token a cada petición saliente
-│   │   └── errores.interceptor.ts # Manejo global de errores HTTP
+│   │   ├── auth.interceptor.ts    # Añade withCredentials: true para enviar la cookie en cada petición
+│   │   └── errores.interceptor.ts # Manejo global de errores HTTP; llama cerrarSesion() en 401
 │   ├── guardias/
-│   │   ├── autenticado.guard.ts   # Redirige a /login si no hay token
+│   │   ├── autenticado.guard.ts   # Redirige a /inicio si no hay sesión activa
 │   │   ├── invitado.guard.ts      # Redirige a /app si ya hay sesión activa
 │   │   └── rastreo-publico.guard.ts
 │   ├── bancos/
@@ -59,6 +59,7 @@ src/app/
 │
 ├── features/                      # Funcionalidades organizadas por dominio
 │   ├── autenticacion/
+│   │   ├── perfil.service.ts      # GET /api/perfil con caché TTL 30 min
 │   │   └── paginas/
 │   │       ├── login/             # Formulario de inicio de sesión
 │   │       ├── registro/          # Formulario de creación de cuenta
@@ -67,7 +68,7 @@ src/app/
 │   │   ├── rastreo.service.ts     # POST /api/rastreo, POST /api/rastreo/guardar, POST /api/rastreo/ocr
 │   │   └── paginas/rastreo/       # Formulario de rastreo SPEI con OCR de comprobante y pantalla de resultado
 │   ├── historial/
-│   │   ├── historial.service.ts   # GET /api/historial, DELETE /api/historial/:id
+│   │   ├── historial.service.ts   # GET /api/historial con caché TTL 3 min, DELETE /api/historial/:id
 │   │   └── paginas/historial/     # Lista de consultas guardadas con opción de borrar
 │   └── legal/
 │       └── aviso-privacidad/      # Página estática
@@ -84,7 +85,8 @@ src/app/
 
 | Ruta | Guard | Descripción |
 |---|---|---|
-| `/` | — | Redirige a `/rastreo` |
+| `/` | — | Redirige a `/app/historial` si hay sesión activa, o a `/inicio` si no |
+| `/inicio` | `guardiaInvitado` | Landing page pública |
 | `/rastreo` | `guardiaRastreoPublico` | Rastreo SPEI sin necesidad de login |
 | `/login` | `guardiaInvitado` | Solo accesible sin sesión activa |
 | `/registro` | `guardiaInvitado` | Solo accesible sin sesión activa |
@@ -97,11 +99,32 @@ src/app/
 
 Todas las rutas usan `loadComponent()` — los bundles se cargan solo cuando el usuario navega a esa ruta.
 
+### Autenticación
+
+La sesión se gestiona mediante **cookie HttpOnly** (`traxo_token`), nunca en `localStorage` ni en headers visibles al JS.
+
+- `AuthService.verificarSesion()` — se llama en `APP_INITIALIZER` (antes de que el router evalúe guards). Hace `GET /api/perfil`; si responde 200 la sesión es válida.
+- `AuthService.estaAutenticado` — señal booleana que refleja el resultado de `verificarSesion()` o del login.
+- `auth.interceptor.ts` — añade `withCredentials: true` a todas las peticiones para que el browser adjunte la cookie automáticamente.
+- `errores.interceptor.ts` — ante un 401, si el usuario estaba autenticado, llama `cerrarSesion()` y redirige a `/inicio`.
+- `autenticado.guard.ts` — si la señal es `false`, redirige a `/inicio`.
+
+### Caché de datos
+
+Para evitar llamadas HTTP redundantes al navegar entre pestañas, los servicios de datos implementan un **caché en memoria con TTL** basado en señales:
+
+| Servicio | TTL | Invalidación manual |
+|---|---|---|
+| `HistorialService` | 3 min | Tras guardar un rastreo nuevo (`historialService.invalidar()`) |
+| `PerfilService` | 30 min | Tras cambiar el nombre (actualiza la caché en lugar de re-fetcher) |
+
+Al cerrar sesión (`cerrarSesion()`), ambas cachés se limpian para evitar que datos de un usuario sean visibles a otro en el mismo dispositivo.
+
 ### Estado reactivo
 
 El estado se maneja con la API nativa de Signals de Angular 19. No hay store externo (NgRx, Akita, etc.):
 
-- `AuthService.estaAutenticado` — señal computada basada en el token en memoria
+- `AuthService.estaAutenticado` — señal booleana derivada de la verificación de sesión via cookie
 - `TemaService.esModoOscuro` — persiste en `localStorage` y respeta `prefers-color-scheme`
 - Componentes usan señales locales (`signal()`) para estados de carga, errores y éxitos
 - `RastreoComponent`: señales para estado OCR (`analizandoOcr`, `errorOcr`, `faltantes`) — el formulario se pre-llena con los campos extraídos del comprobante
