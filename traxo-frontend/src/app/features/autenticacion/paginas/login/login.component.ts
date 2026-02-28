@@ -121,8 +121,11 @@ export class LoginComponent {
     const { email, contrasena } = this.formulario.value;
     this.auth.login(email!, contrasena!).subscribe({
       next: () => this.router.navigate(['/app/historial']),
-      error: () => {
-        this.errorMensaje.set(TEXTOS_ERRORES.credencialesIncorrectas);
+      error: (err: any) => {
+        const msg = err?.status === 429
+          ? TEXTOS_ERRORES.demasiadosIntentos
+          : TEXTOS_ERRORES.credencialesIncorrectas;
+        this.errorMensaje.set(msg);
         this.cargando.set(false);
       },
     });

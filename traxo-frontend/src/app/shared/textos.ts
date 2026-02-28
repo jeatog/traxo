@@ -131,6 +131,7 @@ export const TEXTOS_ERRORES = {
   transaccionNoEncontrada: 'No se encontró la transferencia con los datos proporcionados.',
   contrasenaMinimo: 'La contraseña debe tener al menos 8 caracteres',
   credencialesIncorrectas: 'Correo o contraseña incorrectos.',
+  demasiadosIntentos: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
 } as const;
 
 export const TEXTOS_NAV = {

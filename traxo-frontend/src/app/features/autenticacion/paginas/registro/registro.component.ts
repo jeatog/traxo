@@ -131,8 +131,11 @@ export class RegistroComponent {
     const { nombre, email, contrasena } = this.formulario.value;
     this.auth.registrar(nombre!, email!, contrasena!).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: (err) => {
-        this.errorMensaje.set(err?.error?.detail ?? TEXTOS_GENERAL.error);
+      error: (err: any) => {
+        const msg = err?.status === 429
+          ? TEXTOS_ERRORES.demasiadosIntentos
+          : (err?.error?.detail ?? TEXTOS_GENERAL.error);
+        this.errorMensaje.set(msg);
         this.cargando.set(false);
       },
     });
