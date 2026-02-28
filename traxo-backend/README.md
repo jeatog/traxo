@@ -136,8 +136,8 @@ src/main/java/mx/traxo/
 │           └── CambiarContrasenaRequestDto.java
 │
 ├── configuracion/
-│   ├── SeguridadConfig.java          # Spring Security: JWT filter chain, CORS, rutas públicas
-│   ├── FiltroJwt.java                # Extrae y valida el Bearer token en cada request
+│   ├── SeguridadConfig.java          # Spring Security: cookie filter chain, CORS, rutas públicas
+│   ├── FiltroJwt.java                # Lee cookie traxo_token; fallback a Bearer header para herramientas dev
 │   └── ManejadorExcepciones.java     # @RestControllerAdvice — errores como ProblemDetail
 │
 └── TraxoApplication.java             # Entry point
@@ -185,16 +185,20 @@ Crea una nueva cuenta. No requiere token.
 ---
 
 #### `POST /api/auth/login`
-Autentica y devuelve un JWT. No requiere token.
+Autentica al usuario. No requiere token.
 
 **Request:**
 ```json
 { "email": "juan@ejemplo.com", "contrasena": "minimo8chars" }
 ```
-**Response `200`:**
-```json
-{ "token": "eyJ...", "tipo": "Bearer" }
-```
+**Response `204`:** sin cuerpo. Establece la cookie `traxo_token` (HttpOnly, SameSite=Lax, Secure en producción). La cookie es leída automáticamente por el browser en cada request posterior.
+
+---
+
+#### `POST /api/auth/logout`
+Cierra la sesión vaciando la cookie. No requiere autenticación (la cookie puede estar expirada).
+
+**Response `204`:** sin cuerpo. Vacía la cookie `traxo_token` (`Max-Age: 0`).
 
 ---
 
@@ -258,7 +262,7 @@ Los campos en `faltantes` no pudieron leerse de la imagen; el usuario los comple
 ---
 
 #### `POST /api/rastreo/guardar`
-Persiste el resultado de un rastreo en el historial del usuario. Requiere JWT.
+Persiste el resultado de un rastreo en el historial del usuario. Requiere sesión activa (cookie).
 
 Los campos sensibles (`nombreEmisor`, `nombreReceptor`) **no se persisten**, solo se usan para mostrar al usuario en sesión.
 
@@ -273,7 +277,7 @@ Los campos sensibles (`nombreEmisor`, `nombreReceptor`) **no se persisten**, sol
 
 ---
 
-### Historial (`/api/historial`) — requiere JWT
+### Historial (`/api/historial`) — requiere sesión activa (cookie)
 
 #### `GET /api/historial`
 Devuelve las consultas guardadas del usuario autenticado, ordenadas de más reciente a más antigua.
@@ -305,7 +309,7 @@ Elimina una consulta del historial. Solo funciona si el `id` pertenece al usuari
 
 ---
 
-### Perfil (`/api/perfil`) — requiere JWT
+### Perfil (`/api/perfil`) — requiere sesión activa (cookie)
 
 #### `GET /api/perfil`
 Devuelve el nombre y email del usuario autenticado.
@@ -417,7 +421,8 @@ Campos que **nunca se almacenan** por decisión de privacidad: CLABE, clave de r
 | `DB_USER` | `traxo` | Usuario de PostgreSQL |
 | `DB_PASSWORD` | `traxo` | Contraseña de PostgreSQL |
 | `JWT_SECRETO` | _(sin default, obligatorio)_ | Clave secreta para firmar JWT (mín. 32 chars) |
-| `JWT_EXPIRACION_MS` | `86400000` | Expiración del token en ms (24 horas) |
+| `JWT_EXPIRACION_MS` | `86400000` (24 h local) | Expiración del token en ms. En producción se usa `2592000000` (30 días) vía docker-compose. |
+| `TRAXO_JWT_COOKIE_SECURE` | `false` | `true` en producción (HTTPS). Con `false` la cookie funciona en HTTP (localhost). |
 | `MICROS_URL` | `http://localhost:3000` | URL del microservicio Python |
 | `MICROS_API_KEY` | _(vacío)_ | API key compartida con el microservicio |
 
