@@ -33,6 +33,7 @@ traxo:
   jwt:
     secreto: ${JWT_SECRETO}
     expiracion-ms: ${JWT_EXPIRACION_MS:86400000}  # 24 horas
+    cookie-secure: ${TRAXO_JWT_COOKIE_SECURE:false}
   micros:
     url: ${MICROS_URL:http://localhost:3000}
     api-key: ${MICROS_API_KEY:}

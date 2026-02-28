@@ -1,5 +1,6 @@
 package mx.traxo.configuracion;
 
+import jakarta.servlet.http.HttpServletResponse;
 import mx.traxo.dominio.puerto.salida.TokenGateway;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -33,13 +34,16 @@ public class SeguridadConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/registro", "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/registro", "/auth/login", "/auth/logout").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/rastreo").permitAll()
                         .requestMatchers(HttpMethod.POST, "/rastreo/ocr").permitAll()
                         .requestMatchers(HttpMethod.GET, "/bancos").permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) ->
+                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
                 .addFilterBefore(filtroJwt, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
