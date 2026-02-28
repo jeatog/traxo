@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, map, catchError, Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { HistorialService } from '../../features/historial/historial.service';
+import { PerfilService } from '../../features/autenticacion/perfil.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -10,7 +12,12 @@ export class AuthService {
 
   readonly estaAutenticado = this._autenticado.asReadonly();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private historialService: HistorialService,
+    private perfilService: PerfilService,
+  ) {}
 
   verificarSesion(): Observable<boolean> {
     return this.http
@@ -33,6 +40,8 @@ export class AuthService {
 
   cerrarSesion(): void {
     this._autenticado.set(false);
+    this.historialService.limpiar();
+    this.perfilService.limpiar();
     this.router.navigate(['/inicio']);
     this.http
       .post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })

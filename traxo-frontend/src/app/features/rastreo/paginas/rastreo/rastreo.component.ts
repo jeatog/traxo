@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RastreoService } from '../../rastreo.service';
+import { HistorialService } from '../../../historial/historial.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { TemaService } from '../../../../core/tema/tema.service';
 import { BancosService } from '../../../../core/bancos/bancos.service';
@@ -55,6 +56,7 @@ export class RastreoComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private rastreoService: RastreoService,
+    private historialService: HistorialService,
     private bancosService: BancosService,
     protected readonly auth: AuthService,
     protected readonly tema: TemaService,
@@ -136,7 +138,7 @@ export class RastreoComponent implements OnInit {
     this.errorGuardado.set(false);
     const alias = this.formulario.get('alias')?.value || undefined;
     this.rastreoService.guardar({ resultado: res, alias }).subscribe({
-      next: () => { this.guardado.set(true); this.guardando.set(false); },
+      next: () => { this.historialService.invalidar(); this.guardado.set(true); this.guardando.set(false); },
       error: () => { this.guardando.set(false); this.errorGuardado.set(true); },
     });
   }

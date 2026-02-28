@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { PerfilService } from '../../perfil.service';
 import { environment } from '../../../../../environments/environment';
 import { TEXTOS_PERFIL, TEXTOS_GENERAL, TEXTOS_ERRORES } from '../../../../shared/textos';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog.component';
@@ -121,11 +122,12 @@ export class PerfilComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
+    private perfilService: PerfilService,
     protected readonly auth: AuthService,
   ) {}
 
   ngOnInit(): void {
-    this.http.get<{ nombre: string; email: string }>(`${environment.apiUrl}/perfil`).subscribe({
+    this.perfilService.obtener().subscribe({
       next: perfil => this.formNombre.patchValue({ nombre: perfil.nombre }),
     });
   }
@@ -137,6 +139,7 @@ export class PerfilComponent implements OnInit {
     this.exitoNombre.set(false);
     this.http.patch(`${environment.apiUrl}/perfil/nombre`, this.formNombre.value).subscribe({
       next: () => {
+        this.perfilService.actualizarNombre(this.formNombre.value.nombre ?? '');
         this.guardandoNombre.set(false);
         this.exitoNombre.set(true);
         setTimeout(() => this.exitoNombre.set(false), 3000);
