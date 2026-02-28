@@ -93,8 +93,19 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
                       {{ item.monto | currency:'MXN':'symbol-narrow':'1.2-2' }}
                     </span>
                     <div class="text-right space-y-0.5">
-                      <p class="text-xs text-atenuado">Op: {{ item.fechaOperacion | date:'dd MMM yyyy' }}{{ item.horaOperacion ? ', ' + item.horaOperacion.substring(0, 5) : '' }}</p>
-                      <p class="text-xs text-atenuado">Cons: {{ item.fechaConsulta | date:'dd MMM yyyy, HH:mm' }}</p>
+                      <p class="text-xs text-atenuado flex items-center justify-end gap-1">
+                        <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/>
+                        </svg>
+                        {{ item.fechaOperacion | date:'dd MMM yyyy' }}{{ item.horaOperacion ? ', ' + item.horaOperacion.substring(0, 5) : '' }}
+                      </p>
+                      <p class="text-xs text-atenuado flex items-center justify-end gap-1">
+                        <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                        {{ item.fechaConsulta | date:'dd MMM yyyy, HH:mm' }}
+                      </p>
                     </div>
                   </div>
                   <!-- Fila 4: re-verificar + eliminar -->
