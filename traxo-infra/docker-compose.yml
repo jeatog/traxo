@@ -38,6 +38,7 @@ services:
       MICROS_API_KEY: ${MICROS_API_KEY}
       JAVA_TOOL_OPTIONS: "-Xmx512m"
       TRAXO_CORS_ORIGENES_PERMITIDOS: "https://traxo.mx"
+      TRAXO_JWT_COOKIE_SECURE: "true"
     depends_on:
       postgres:
         condition: service_healthy
