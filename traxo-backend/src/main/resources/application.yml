@@ -38,6 +38,9 @@ traxo:
     url: ${MICROS_URL:http://localhost:3000}
     api-key: ${MICROS_API_KEY:}
 
+turnstile:
+  secret-key: ${TURNSTILE_SECRET_KEY:}
+
 logging:
   charset:
     console: UTF-8

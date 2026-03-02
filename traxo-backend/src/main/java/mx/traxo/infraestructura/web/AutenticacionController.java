@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import mx.traxo.dominio.modelo.Usuario;
 import mx.traxo.dominio.puerto.entrada.AutenticarUsuarioCasoUso;
 import mx.traxo.dominio.puerto.entrada.RegistrarUsuarioCasoUso;
+import mx.traxo.infraestructura.cliente.TurnstileService;
 import mx.traxo.infraestructura.web.dto.LoginRequestDto;
 import mx.traxo.infraestructura.web.dto.RegistroRequestDto;
 import org.slf4j.Logger;
@@ -32,16 +33,22 @@ public class AutenticacionController {
 
     private final RegistrarUsuarioCasoUso registrarUsuario;
     private final AutenticarUsuarioCasoUso autenticarUsuario;
+    private final TurnstileService turnstileService;
 
     public AutenticacionController(RegistrarUsuarioCasoUso registrarUsuario,
-                                   AutenticarUsuarioCasoUso autenticarUsuario) {
+                                   AutenticarUsuarioCasoUso autenticarUsuario,
+                                   TurnstileService turnstileService) {
         this.registrarUsuario = registrarUsuario;
         this.autenticarUsuario = autenticarUsuario;
+        this.turnstileService = turnstileService;
     }
 
     @PostMapping("/registro")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, String> registro(@Valid @RequestBody RegistroRequestDto dto) {
+        if (!turnstileService.verificar(dto.turnstileToken())) {
+            throw new IllegalArgumentException("Verificación de seguridad no válida. Recarga la página e inténtalo de nuevo.");
+        }
         log.info("Registrando usuario ->email={}", dto.email());
         Usuario usuario = registrarUsuario.registrar(dto.nombre(), dto.email(), dto.contrasena());
         log.info("Usuario registrado ->id={}", usuario.id());

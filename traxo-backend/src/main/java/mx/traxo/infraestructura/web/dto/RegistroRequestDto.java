@@ -7,5 +7,6 @@ import jakarta.validation.constraints.Size;
 public record RegistroRequestDto(
         @NotBlank String nombre,
         @NotBlank @Email String email,
-        @NotBlank @Size(min = 8) String contrasena
+        @NotBlank @Size(min = 8) String contrasena,
+        String turnstileToken
 ) {}
