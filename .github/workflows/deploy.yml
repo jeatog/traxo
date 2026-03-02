@@ -78,8 +78,8 @@ jobs:
             fi
 
             if [ "$NGINX" = "true" ]; then
-              echo "--> Refrescando nginx..."
-              docker compose --env-file .env exec -T nginx nginx -s reload
+              echo "--> Reiniciando nginx..."
+              docker compose --env-file .env up -d --no-deps --force-recreate nginx
             fi
 
             if [ "$COMPOSE" = "true" ]; then
