@@ -62,7 +62,7 @@ src/app/
 │   │   ├── perfil.service.ts      # GET /api/perfil con caché TTL 30 min
 │   │   └── paginas/
 │   │       ├── login/             # Formulario de inicio de sesión
-│   │       ├── registro/          # Formulario de creación de cuenta
+│   │       ├── registro/          # Formulario de creación de cuenta + widget Cloudflare Turnstile
 │   │       └── perfil/            # Editar nombre, contraseña, eliminar cuenta
 │   ├── rastreo/
 │   │   ├── rastreo.service.ts     # POST /api/rastreo, POST /api/rastreo/guardar, POST /api/rastreo/ocr
@@ -141,7 +141,10 @@ Definidas en `src/environments/`:
 
 | Variable | Desarrollo | Producción |
 |---|---|---|
-| `apiUrl` | `http://localhost:8080/api` | URL del servidor de producción |
+| `apiUrl` | `http://localhost:8080/api` | `/api` (relativo, lo resuelve nginx) |
+| `turnstileSiteKey` | `1x00000000000000000000AA` (clave de prueba, siempre pasa) | Site key real de Cloudflare Turnstile |
+
+La `turnstileSiteKey` es **pública** por diseño (se puede commitear). La clave secreta de verificación solo vive en el servidor (`TURNSTILE_SECRET_KEY` en `.env`).
 
 ---
 
