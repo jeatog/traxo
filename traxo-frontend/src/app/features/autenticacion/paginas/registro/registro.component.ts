@@ -2,7 +2,7 @@ import { Component, AfterViewInit, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { TEXTOS_AUTH, TEXTOS_ERRORES, TEXTOS_GENERAL } from '../../../../shared/textos';
+import { TEXTOS_AUTH, TEXTOS_AVISO, TEXTOS_ERRORES, TEXTOS_GENERAL } from '../../../../shared/textos';
 import { environment } from '../../../../../environments/environment';
 
 declare const turnstile: { render: (el: string, opts: object) => void } | undefined;
@@ -102,6 +102,11 @@ declare const turnstile: { render: (el: string, opts: object) => void } | undefi
             {{ TEXTOS.consultarSinCuenta }}
           </a>
         </div>
+
+        <p class="text-center text-xs text-atenuado mt-4">
+          {{ TEXTOS_AV.avisoRegistro }}
+          <a routerLink="/aviso-privacidad" class="text-primario underline underline-offset-2">{{ TEXTOS_AV.avisoRegistroEnlace }}</a>.
+        </p>
       </div>
     </div>
   `,
@@ -109,6 +114,7 @@ declare const turnstile: { render: (el: string, opts: object) => void } | undefi
 export class RegistroComponent implements AfterViewInit {
   protected readonly TEXTOS = TEXTOS_AUTH;
   protected readonly TEXTOS_ERR = TEXTOS_ERRORES;
+  protected readonly TEXTOS_AV = TEXTOS_AVISO;
   protected readonly siteKey = environment.turnstileSiteKey;
 
   readonly cargando = signal(false);

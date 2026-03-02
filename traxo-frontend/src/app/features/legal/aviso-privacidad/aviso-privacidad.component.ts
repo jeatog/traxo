@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { Meta } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { TEXTOS_AVISO } from '../../../../app/shared/textos';
 
@@ -30,6 +31,16 @@ import { TEXTOS_AVISO } from '../../../../app/shared/textos';
         <div class="bg-fondo-tarjeta rounded-2xl p-5 shadow-sm space-y-4">
           <h1 class="text-lg font-bold text-principal">{{ TEXTOS.tituloPagina }}</h1>
           <p class="text-sm text-secundario leading-relaxed">{{ TEXTOS.intro }}</p>
+        </div>
+
+        <div class="bg-fondo-tarjeta rounded-2xl p-5 shadow-sm space-y-2">
+          <h2 class="text-sm font-bold text-principal uppercase tracking-wider">
+            {{ TEXTOS.seccionResponsable }}
+          </h2>
+          <p class="text-sm text-secundario leading-relaxed">
+            {{ TEXTOS.responsableTexto }}
+            <a href="mailto:{{ TEXTOS.responsableEmail }}" class="text-primario font-medium">{{ TEXTOS.responsableEmail }}</a>.
+          </p>
         </div>
 
         <div class="bg-fondo-tarjeta rounded-2xl p-5 shadow-sm space-y-3">
@@ -100,8 +111,13 @@ import { TEXTOS_AVISO } from '../../../../app/shared/textos';
     </div>
   `,
 })
-export class AvisoPrivacidadComponent {
+export class AvisoPrivacidadComponent implements OnInit {
   protected readonly TEXTOS = TEXTOS_AVISO;
+  private readonly meta = inject(Meta);
+
+  ngOnInit(): void {
+    this.meta.addTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
 
   readonly datosRecopilados = [
     { titulo: 'Correo electrónico', desc: 'Identificación y acceso a la cuenta' },
