@@ -39,6 +39,7 @@ services:
       JAVA_TOOL_OPTIONS: "-Xmx512m"
       TRAXO_CORS_ORIGENES_PERMITIDOS: "https://traxo.mx"
       TRAXO_JWT_COOKIE_SECURE: "true"
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
