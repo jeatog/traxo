@@ -132,6 +132,7 @@ export const TEXTOS_ERRORES = {
   contrasenaMinimo: 'La contraseña debe tener al menos 8 caracteres',
   credencialesIncorrectas: 'Correo o contraseña incorrectos.',
   demasiadosIntentos: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+  turnstileRequerido: 'Completa la verificación de seguridad antes de continuar.',
 } as const;
 
 export const TEXTOS_NAV = {
