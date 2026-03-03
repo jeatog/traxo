@@ -35,6 +35,9 @@ out/
 # Docker
 *.override.yml
 
+# Credenciales de acceso (no commitear)
+traxo-infra/nginx/.htpasswd
+
 # IDEs
 .idea/
 .vscode/
