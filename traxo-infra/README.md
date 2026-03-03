@@ -7,11 +7,13 @@ Configuración de contenedores Docker para el stack completo: base de datos, bac
   
 | Servicio   | Imagen / Base            | Puerto interno | Descripción |  
 |------------|--------------------------|:--------------:|-------------|  
-| `postgres` | `postgres:16-alpine`     | 5432           | Base de datos. Volumen persistente `postgres_data`. |  
-| `backend`  | `eclipse-temurin:21-jre` | 8080           | API REST Spring Boot. Aplica migraciones Flyway al arrancar. |  
-| `micros`   | `python:3.12-slim`       | 3000           | FastAPI + Playwright. Pool de páginas de Chromium precargadas para scraping de Banxico. OCR de comprobantes con EasyOCR y Claude Haiku Vision. |  
-| `frontend` | `nginx:alpine`           | 80             | Distribución estática de Angular. |  
-| `nginx`    | `nginx:alpine`           | 80, 443        | Reverse proxy. TLS termination. Redirige `/api/*` al backend y `/*` al frontend. |  
+| `postgres`     | `postgres:16-alpine`        | 5432    | Base de datos. Volumen persistente `postgres_data`. |
+| `backend`      | `eclipse-temurin:21-jre`    | 8080    | API REST Spring Boot. Aplica migraciones Flyway al arrancar. |
+| `micros`       | `python:3.12-slim`          | 3000    | FastAPI + Playwright. Pool de páginas de Chromium precargadas para scraping de Banxico. OCR de comprobantes con EasyOCR y Claude Haiku Vision. |
+| `frontend`     | `nginx:alpine`              | 80      | Distribución estática de Angular. |
+| `nginx`        | `nginx:alpine`              | 80, 443 | Reverse proxy. TLS termination. Redirige `/api/*` al backend y `/*` al frontend. |
+| `dozzle`       | `amir20/dozzle`             | 8080    | Visor de logs de containers en tiempo real. Accesible en `/logs/` (basic auth). |
+| `uptime-kuma`  | `louislam/uptime-kuma:1`    | 3001    | Monitoreo de servicios y alertas push. Solo accesible vía SSH tunnel. |  
   
 Solo `nginx` expone puertos al host (80 y 443). El resto se comunica por red Docker interna.  
   
@@ -242,6 +244,67 @@ El workflow `.github/workflows/deploy.yml` detecta qué servicios cambiaron en c
 | `VPS_PROJECT_PATH` | Ruta absoluta del repo en el servidor (ej. `/home/user/traxo`) |
 
 La clave pública correspondiente debe estar en `~/.ssh/authorized_keys` del servidor.
+
+---
+
+## Observabilidad
+
+### Dozzle — logs de containers
+
+Visor de logs en tiempo real accesible desde el navegador.
+
+**Setup inicial (una sola vez en el VPS):**
+
+```bash
+# Instalar herramienta para generar contraseñas
+sudo apt-get install -y apache2-utils
+
+# Crear el archivo de credenciales (desde traxo-infra/)
+htpasswd -c nginx/.htpasswd admin
+```
+
+Después del primer deploy, recrear el container nginx para que tome el nuevo archivo:
+
+```bash
+docker compose --env-file .env up -d --no-deps --force-recreate nginx
+```
+
+**Uso:**
+- Abrir `https://traxo.mx/logs/` en el navegador o móvil
+- Selecciona el container para ver sus logs en vivo
+
+---
+
+### Uptime Kuma — monitoreo y alertas
+
+Uptime Kuma monitorea que los health checks de los servicios respondan y manda alertas algo cae.
+
+**No está expuesto públicamente** — se administra una sola vez vía SSH tunnel y luego funciona de forma autónoma mandando notificaciones push.
+
+**Setup inicial:**
+
+```bash
+# Localmente
+ssh -L 3001:localhost:3001 user@vps-ip
+
+# Abrir
+# http://localhost:3001
+```
+
+Configurar en la UI:
+1. Crear cuenta de administrador (solo la primera vez)
+2. Agregar monitores — recomendados:
+
+| Monitor | URL / Host | Tipo |
+|---|---|---|
+| Backend health | `http://backend:8080/api/actuator/health` | HTTP |
+| Micros health | `http://micros:3000/health` | HTTP |
+| Postgres | `postgres:5432` | TCP Port |
+| Frontend | `http://frontend:80` | HTTP |
+
+3. Configurar notificaciones
+
+Una vez configurado, cerrar el túnel. Uptime Kuma sigue corriendo y manda alertas de forma autónoma.
 
 ---
 
