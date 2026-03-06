@@ -18,6 +18,11 @@
       }
     }
   ],
+  "navigationUrls": [
+    "/**",
+    "!/**/.*",
+    "!/logs/**"
+  ],
   "dataGroups": [
     {
       "name": "bancos-api",
