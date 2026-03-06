@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-traxo} -d ${DB_NAME:-traxo}"]
       interval: 10s
@@ -63,7 +63,7 @@ services:
       MICROS_API_KEY: ${MICROS_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:3000/health')\" || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
