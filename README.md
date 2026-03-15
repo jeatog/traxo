@@ -2,6 +2,13 @@
 
 Aplicación web para rastrear transferencias SPEI. El usuario ingresa los datos de su transferencia y Traxo consulta el portal de Banxico para obtener el estado en tiempo real: liquidada, en proceso, devuelta o no encontrada.
 
+[![Angular](https://img.shields.io/badge/Angular-19-DD0031?logo=angular&logoColor=white)](traxo-frontend/README.md)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4-6DB33F?logo=springboot&logoColor=white)](traxo-backend/README.md)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](traxo-micros/README.md)
+[![Docker Compose](https://img.shields.io/badge/Docker_Compose-2-2496ED?logo=docker&logoColor=white)](traxo-infra/README.md)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](traxo-infra/README.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+
 ---
 
 ## Estructura del monorepo
