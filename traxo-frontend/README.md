@@ -2,6 +2,12 @@
 
 Interfaz web de Traxo. SPA en Angular 19 que permite rastrear transferencias SPEI contra el portal de Banxico, guardar un historial personal y gestionar la cuenta del usuario.
 
+[![Angular](https://img.shields.io/badge/Angular-19-DD0031?logo=angular&logoColor=white)]()
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)]()
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)]()
+[![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?logo=reactivex&logoColor=white)]()
+[![PWA](https://img.shields.io/badge/PWA-habilitada-5A0FC8?logo=pwa&logoColor=white)]()
+
 ---
 
 ## Tecnologías
