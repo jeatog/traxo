@@ -1,9 +1,17 @@
-  
-# Infraestructura — Traxo  
-  
-Configuración de contenedores Docker para el stack completo: base de datos, backend, microservicio Python, frontend y reverse proxy.  
-  
-## Contenedores  
+
+# Infraestructura — Traxo
+
+Configuración de contenedores Docker para el stack completo: base de datos, backend, microservicio Python, frontend y reverse proxy.
+
+[![Docker Compose](https://img.shields.io/badge/Docker_Compose-2-2496ED?logo=docker&logoColor=white)]()
+[![nginx](https://img.shields.io/badge/nginx-alpine-009639?logo=nginx&logoColor=white)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)]()
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-proxy_%2B_WAF-F38020?logo=cloudflare&logoColor=white)]()
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)]()
+[![Dozzle](https://img.shields.io/badge/Dozzle-logs-FC4C02?logo=docker&logoColor=white)]()
+[![Uptime Kuma](https://img.shields.io/badge/Uptime_Kuma-monitoreo-5CDD8B?logo=uptimekuma&logoColor=white)]()
+
+## Contenedores
   
 | Servicio   | Imagen / Base            | Puerto interno | Descripción |  
 |------------|--------------------------|:--------------:|-------------|  
