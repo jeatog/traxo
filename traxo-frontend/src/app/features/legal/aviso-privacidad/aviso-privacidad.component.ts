@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TEXTOS_AVISO } from '../../../../app/shared/textos';
 
@@ -6,6 +6,7 @@ import { TEXTOS_AVISO } from '../../../../app/shared/textos';
   selector: 'trx-aviso-privacidad',
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen bg-fondo-base">
 

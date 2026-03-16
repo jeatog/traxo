@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TemaService } from '../../core/tema/tema.service';
 
@@ -6,6 +6,7 @@ import { TemaService } from '../../core/tema/tema.service';
   selector: 'trx-layout-auth',
   standalone: true,
   imports: [RouterOutlet],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen bg-gradient-to-br from-primario to-primario-hover flex flex-col sm:items-center sm:justify-center sm:py-10 relative">
       <!-- Toggle modo oscuro (esquina) -->
@@ -29,5 +30,5 @@ import { TemaService } from '../../core/tema/tema.service';
   `,
 })
 export class LayoutAuthComponent {
-  constructor(protected readonly tema: TemaService) {}
+  protected readonly tema = inject(TemaService);
 }

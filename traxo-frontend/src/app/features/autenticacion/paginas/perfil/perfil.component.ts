@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { PerfilService } from '../../perfil.service';
-import { environment } from '../../../../../environments/environment';
 import { TEXTOS_PERFIL, TEXTOS_GENERAL, TEXTOS_ERRORES } from '../../../../shared/textos';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog.component';
 
@@ -11,6 +11,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
   selector: 'trx-perfil',
   standalone: true,
   imports: [ReactiveFormsModule, ConfirmDialogComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <trx-confirm-dialog #dialog />
 
@@ -102,6 +103,11 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 export class PerfilComponent implements OnInit {
   @ViewChild('dialog') dialog!: ConfirmDialogComponent;
 
+  private readonly fb = inject(FormBuilder);
+  private readonly perfilService = inject(PerfilService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly auth = inject(AuthService);
+
   protected readonly TEXTOS     = TEXTOS_PERFIL;
   protected readonly TEXTOS_GEN = TEXTOS_GENERAL;
 
@@ -119,17 +125,12 @@ export class PerfilComponent implements OnInit {
     contrasenaNueva:  ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    private perfilService: PerfilService,
-    protected readonly auth: AuthService,
-  ) {}
-
   ngOnInit(): void {
-    this.perfilService.obtener().subscribe({
-      next: perfil => this.formNombre.patchValue({ nombre: perfil.nombre }),
-    });
+    this.perfilService.obtener()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: perfil => this.formNombre.patchValue({ nombre: perfil.nombre }),
+      });
   }
 
   guardarNombre(): void {
@@ -137,9 +138,8 @@ export class PerfilComponent implements OnInit {
     this.guardandoNombre.set(true);
     this.errorNombre.set(null);
     this.exitoNombre.set(false);
-    this.http.patch(`${environment.apiUrl}/perfil/nombre`, this.formNombre.value).subscribe({
+    this.perfilService.cambiarNombre(this.formNombre.value.nombre ?? '').subscribe({
       next: () => {
-        this.perfilService.actualizarNombre(this.formNombre.value.nombre ?? '');
         this.guardandoNombre.set(false);
         this.exitoNombre.set(true);
         setTimeout(() => this.exitoNombre.set(false), 3000);
@@ -156,7 +156,8 @@ export class PerfilComponent implements OnInit {
     this.guardandoContrasena.set(true);
     this.errorContrasena.set(null);
     this.exitoContrasena.set(false);
-    this.http.patch(`${environment.apiUrl}/perfil/contrasena`, this.formContrasena.value).subscribe({
+    const { contrasenaActual, contrasenaNueva } = this.formContrasena.value;
+    this.perfilService.cambiarContrasena(contrasenaActual!, contrasenaNueva!).subscribe({
       next: () => {
         this.formContrasena.reset();
         this.guardandoContrasena.set(false);
@@ -180,7 +181,7 @@ export class PerfilComponent implements OnInit {
     });
     if (!confirmado) return;
     this.errorEliminarCuenta.set(null);
-    this.http.delete(`${environment.apiUrl}/perfil`).subscribe({
+    this.perfilService.eliminarCuenta().subscribe({
       next: () => this.auth.cerrarSesion(),
       error: (err: HttpErrorResponse) => this.errorEliminarCuenta.set(this.mensajeError(err)),
     });

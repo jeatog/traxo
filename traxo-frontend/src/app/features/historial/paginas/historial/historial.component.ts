@@ -1,5 +1,6 @@
-import { Component, ViewChild, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ViewChild, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HistorialService } from '../../historial.service';
 import { ItemHistorial } from '../../../../shared/utils/modelos';
 import { TEXTOS_HISTORIAL, TEXTOS_RESULTADO, TEXTOS_GENERAL, TEXTOS_ERRORES } from '../../../../shared/textos';
@@ -10,6 +11,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
   selector: 'trx-historial',
   standalone: true,
   imports: [RouterLink, CurrencyPipe, DatePipe, ConfirmDialogComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <trx-confirm-dialog #dialog />
 
@@ -144,6 +146,10 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 export class HistorialComponent implements OnInit {
   @ViewChild('dialog') dialog!: ConfirmDialogComponent;
 
+  private readonly historialService = inject(HistorialService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly TEXTOS     = TEXTOS_HISTORIAL;
   protected readonly TEXTOS_RES = TEXTOS_RESULTADO;
   protected readonly TEXTOS_GEN = TEXTOS_GENERAL;
@@ -153,16 +159,13 @@ export class HistorialComponent implements OnInit {
   readonly eliminando     = signal<string | null>(null);
   readonly errorEliminar  = signal<string | null>(null);
 
-  constructor(
-    private historialService: HistorialService,
-    private router: Router,
-  ) {}
-
   ngOnInit(): void {
-    this.historialService.obtener().subscribe({
-      next: data => { this.items.set(data); this.cargando.set(false); },
-      error: () => this.cargando.set(false),
-    });
+    this.historialService.obtener()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: data => { this.items.set(data); this.cargando.set(false); },
+        error: () => this.cargando.set(false),
+      });
   }
 
   async eliminar(item: ItemHistorial): Promise<void> {
@@ -191,8 +194,6 @@ export class HistorialComponent implements OnInit {
   }
 
   reverificar(item: ItemHistorial): void {
-    // Pasamos los datos que sí guardamos como pre-llenado.
-    // claveRastreo y cuentaBeneficiaria no se guardan: el usuario los completa.
     this.router.navigate(['/app/rastreo'], {
       state: {
         prefill: {

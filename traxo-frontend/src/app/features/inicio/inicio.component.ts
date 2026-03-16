@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TemaService } from '../../core/tema/tema.service';
 import { TEXTOS_AUTH, TEXTOS_LANDING } from '../../shared/textos';
@@ -7,6 +7,7 @@ import { TEXTOS_AUTH, TEXTOS_LANDING } from '../../shared/textos';
   selector: 'trx-inicio',
   standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen bg-fondo-base flex flex-col transition-colors duration-200">
 
@@ -121,7 +122,7 @@ import { TEXTOS_AUTH, TEXTOS_LANDING } from '../../shared/textos';
   `,
 })
 export class InicioComponent {
+  protected readonly tema = inject(TemaService);
   protected readonly T_L = TEXTOS_LANDING;
   protected readonly T_A = TEXTOS_AUTH;
-  constructor(protected readonly tema: TemaService) {}
 }

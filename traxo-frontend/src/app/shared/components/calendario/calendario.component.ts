@@ -1,9 +1,8 @@
 import {
-  Component, Input, computed, signal, forwardRef,
-  HostListener, ElementRef,
+  ChangeDetectionStrategy, Component, Input, computed, signal, forwardRef,
+  HostListener, ElementRef, inject,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 interface DiaCelda {
   dia: number | null;
@@ -18,7 +17,7 @@ const DIAS_SEMANA = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 @Component({
   selector: 'trx-calendario',
   standalone: true,
-  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => CalendarioComponent),
@@ -127,7 +126,7 @@ export class CalendarioComponent implements ControlValueAccessor {
   private onChange:  (v: string) => void = () => {};
   private onTouched: () => void          = () => {};
 
-  constructor(private elRef: ElementRef) {}
+  private readonly elRef = inject(ElementRef);
 
   writeValue(value: string): void {
     this.valor.set(value ?? '');

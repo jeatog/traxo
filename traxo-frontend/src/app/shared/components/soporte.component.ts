@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TEXTOS_SOPORTE } from '../textos';
 
 @Component({
   selector: 'trx-soporte',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Botón flotante ? -->
     <button (click)="visible.set(true)"

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -8,6 +8,7 @@ import { TEXTOS_AUTH, TEXTOS_ERRORES, TEXTOS_GENERAL } from '../../../../shared/
   selector: 'trx-registro',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col min-h-screen sm:min-h-0 w-full sm:max-w-sm">
 
@@ -100,6 +101,10 @@ import { TEXTOS_AUTH, TEXTOS_ERRORES, TEXTOS_GENERAL } from '../../../../shared/
   `,
 })
 export class RegistroComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
   protected readonly TEXTOS = TEXTOS_AUTH;
   protected readonly TEXTOS_ERR = TEXTOS_ERRORES;
 
@@ -111,12 +116,6 @@ export class RegistroComponent {
     email: ['', [Validators.required, Validators.email]],
     contrasena: ['', [Validators.required, Validators.minLength(8)]],
   });
-
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
-  ) {}
 
   campo(nombre: string) { return this.formulario.get(nombre); }
 

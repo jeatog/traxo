@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { TemaService } from '../../core/tema/tema.service';
@@ -8,6 +8,7 @@ import { TEXTOS_NAV } from '../../shared/textos';
   selector: 'trx-layout-autenticado',
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen bg-fondo-base flex flex-col transition-colors duration-200">
 
@@ -99,9 +100,7 @@ import { TEXTOS_NAV } from '../../shared/textos';
   `,
 })
 export class LayoutAutenticadoComponent {
+  protected readonly auth = inject(AuthService);
+  protected readonly tema = inject(TemaService);
   protected readonly TEXTOS = TEXTOS_NAV;
-  constructor(
-    protected readonly auth: AuthService,
-    protected readonly tema: TemaService,
-  ) {}
 }

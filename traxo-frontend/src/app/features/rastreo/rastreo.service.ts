@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -21,9 +21,8 @@ export interface GuardarConsultaPeticion {
 
 @Injectable({ providedIn: 'root' })
 export class RastreoService {
+  private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/rastreo`;
-
-  constructor(private http: HttpClient) {}
 
   rastrear(peticion: RastreoPeticion): Observable<ResultadoRastreo> {
     return this.http.post<ResultadoRastreo>(this.url, peticion);

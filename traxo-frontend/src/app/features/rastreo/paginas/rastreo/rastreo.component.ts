@@ -1,7 +1,8 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RastreoService } from '../../rastreo.service';
 import { HistorialService } from '../../../historial/historial.service';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -14,10 +15,19 @@ import { CalendarioComponent } from '../../../../shared/components/calendario/ca
 @Component({
   selector: 'trx-rastreo',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, CalendarioComponent],
+  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe, RouterLink, CalendarioComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './rastreo.component.html',
 })
 export class RastreoComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly rastreoService = inject(RastreoService);
+  private readonly historialService = inject(HistorialService);
+  private readonly bancosService = inject(BancosService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly auth = inject(AuthService);
+  protected readonly tema = inject(TemaService);
+
   protected readonly TEXTOS = TEXTOS_RASTREO;
   protected readonly TEXTOS_RES = TEXTOS_RESULTADO;
   protected readonly TEXTOS_ERR = TEXTOS_ERRORES;
@@ -53,14 +63,7 @@ export class RastreoComponent implements OnInit {
 
   readonly formulario: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private rastreoService: RastreoService,
-    private historialService: HistorialService,
-    private bancosService: BancosService,
-    protected readonly auth: AuthService,
-    protected readonly tema: TemaService,
-  ) {
+  constructor() {
     this.formulario = this.fb.group({
       fechaOperacion:     ['', Validators.required],
       monto:              ['', [Validators.required, Validators.min(0.01)]],
@@ -74,10 +77,12 @@ export class RastreoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.bancosService.obtener().subscribe({
-      next: lista => this.bancos.set(lista),
-      error: () => { /* falla silenciosa: el select quedará vacío */ },
-    });
+    this.bancosService.obtener()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: lista => this.bancos.set(lista),
+        error: () => { /* falla silenciosa: el select quedará vacío */ },
+      });
 
     // Pre-llenado desde re-verificar del historial
     // history.state.prefill contiene los campos que sí se persisten

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
 export interface ConfirmDialogConfig {
   titulo: string;
@@ -11,6 +11,7 @@ export interface ConfirmDialogConfig {
 @Component({
   selector: 'trx-confirm-dialog',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (visible()) {
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"

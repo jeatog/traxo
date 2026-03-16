@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, map, catchError, Observable, of } from 'rxjs';
@@ -8,16 +8,14 @@ import { PerfilService } from '../../features/autenticacion/perfil.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly historialService = inject(HistorialService);
+  private readonly perfilService = inject(PerfilService);
+
   private readonly _autenticado = signal(false);
 
   readonly estaAutenticado = this._autenticado.asReadonly();
-
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private historialService: HistorialService,
-    private perfilService: PerfilService,
-  ) {}
 
   verificarSesion(): Observable<boolean> {
     return this.http
