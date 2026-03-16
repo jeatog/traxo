@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: traxo-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: traxo
+      POSTGRES_USER: traxo
+      POSTGRES_PASSWORD: traxo
+    volumes:
+      - traxo-pgdata:/var/lib/postgresql/data
+
+volumes:
+  traxo-pgdata:
