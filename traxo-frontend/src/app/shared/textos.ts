@@ -132,6 +132,7 @@ export const TEXTOS_ERRORES = {
   contrasenaMinimo: 'La contraseña debe tener al menos 8 caracteres',
   credencialesIncorrectas: 'Correo o contraseña incorrectos.',
   demasiadosIntentos: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+  turnstileRequerido: 'Completa la verificación de seguridad antes de continuar.',
 } as const;
 
 export const TEXTOS_NAV = {
@@ -162,6 +163,9 @@ export const TEXTOS_AVISO = {
   titulo: 'Aviso de Privacidad',
   tituloPagina: 'Traxo — Aviso de Privacidad',
   intro: 'Traxo es un rastreador de transferencias SPEI. Usamos la información estrictamente necesaria para que el servicio funcione y jamás la compartimos con terceros.',
+  seccionResponsable: 'Responsable del tratamiento',
+  responsableTexto: 'El responsable del tratamiento de tus datos personales es Traxo. Para cualquier asunto relacionado con tus datos puedes contactarnos en',
+  responsableEmail: 'soporte@traxo.mx',
   seccionRecopilados: 'Datos que recopilamos',
   seccionNunca: 'Datos que NUNCA almacenamos',
   seccionArco: 'Tus derechos (ARCO)',
@@ -171,4 +175,6 @@ export const TEXTOS_AVISO = {
   arcoSeccionPerfil: 'Perfil',
   arcoTexto2Fin: 'lo que borra todos tus datos de forma inmediata e irreversible.',
   volverRastrear: 'Volver a rastrear',
+  avisoRegistro: 'Al crear una cuenta aceptas nuestro',
+  avisoRegistroEnlace: 'Aviso de Privacidad',
 } as const;

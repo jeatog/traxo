@@ -4,6 +4,12 @@ Microservicios Python de Traxo. Expone:
 - Una API para rastrear transferencias SPEI consultando el portal de Banxico mediante automatización de navegador con Playwright.
 - Un endpoint de OCR que analiza comprobantes bancarios y extrae los campos necesarios para el rastreo.
 
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)]()
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115.6-009688?logo=fastapi&logoColor=white)]()
+[![Playwright](https://img.shields.io/badge/Playwright-1.49.1-2EAD33?logo=playwright&logoColor=white)]()
+[![EasyOCR](https://img.shields.io/badge/EasyOCR-1.7.2-FF6F00?logo=opencv&logoColor=white)]()
+[![Claude Haiku](https://img.shields.io/badge/Claude_Haiku-Vision-D97706?logo=anthropic&logoColor=white)]()
+
 ---
 
 ## Tecnologías

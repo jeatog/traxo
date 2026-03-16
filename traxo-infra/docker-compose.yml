@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-traxo} -d ${DB_NAME:-traxo}"]
       interval: 10s
@@ -39,6 +39,7 @@ services:
       JAVA_TOOL_OPTIONS: "-Xmx512m"
       TRAXO_CORS_ORIGENES_PERMITIDOS: "https://traxo.mx"
       TRAXO_JWT_COOKIE_SECURE: "true"
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,7 +63,7 @@ services:
       MICROS_API_KEY: ${MICROS_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:3000/health')\" || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -90,9 +91,28 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
     depends_on:
       - frontend
       - backend
 
+  # Dozzle
+  dozzle:
+    image: amir20/dozzle:latest
+    restart: unless-stopped
+    environment:
+      DOZZLE_BASE: /logs
+      DOZZLE_NO_ANALYTICS: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # Uptime Kuma
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    restart: unless-stopped
+    volumes:
+      - uptime_kuma_data:/app/data
+
 volumes:
   postgres_data:
+  uptime_kuma_data:

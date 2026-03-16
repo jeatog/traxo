@@ -1,0 +1,90 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend:  ${{ steps.filter.outputs.backend }}
+      micros:   ${{ steps.filter.outputs.micros }}
+      nginx:    ${{ steps.filter.outputs.nginx }}
+      compose:  ${{ steps.filter.outputs.compose }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'traxo-frontend/**'
+            backend:
+              - 'traxo-backend/**'
+            micros:
+              - 'traxo-micros/**'
+            nginx:
+              - 'traxo-infra/nginx/**'
+            compose:
+              - 'traxo-infra/docker-compose.yml'
+
+  deploy:
+    needs: changes
+    if: >
+      needs.changes.outputs.frontend == 'true' ||
+      needs.changes.outputs.backend  == 'true' ||
+      needs.changes.outputs.micros   == 'true' ||
+      needs.changes.outputs.nginx    == 'true' ||
+      needs.changes.outputs.compose  == 'true'
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND:     ${{ needs.changes.outputs.frontend }}
+      BACKEND:      ${{ needs.changes.outputs.backend }}
+      MICROS:       ${{ needs.changes.outputs.micros }}
+      NGINX:        ${{ needs.changes.outputs.nginx }}
+      COMPOSE:      ${{ needs.changes.outputs.compose }}
+      PROJECT_PATH: ${{ secrets.VPS_PROJECT_PATH }}
+    steps:
+      - uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          envs:     FRONTEND,BACKEND,MICROS,NGINX,COMPOSE,PROJECT_PATH
+          script: |
+            set -e
+            cd "$PROJECT_PATH"
+            git pull origin master
+            cd traxo-infra
+
+            if [ "$FRONTEND" = "true" ]; then
+              echo "--> Deployeando frontend..."
+              docker compose --env-file .env build --no-cache frontend
+              docker compose --env-file .env up -d --no-deps frontend
+            fi
+
+            if [ "$BACKEND" = "true" ]; then
+              echo "--> Deployeando backend..."
+              docker compose --env-file .env build --no-cache backend
+              docker compose --env-file .env up -d --no-deps backend
+            fi
+
+            if [ "$MICROS" = "true" ]; then
+              echo "--> Deployeando microservicios..."
+              docker compose --env-file .env build --no-cache micros
+              docker compose --env-file .env up -d --no-deps micros
+            fi
+
+            if [ "$NGINX" = "true" ]; then
+              echo "--> Reiniciando nginx..."
+              docker compose --env-file .env up -d --no-deps --force-recreate nginx
+            fi
+
+            if [ "$COMPOSE" = "true" ]; then
+              echo "--> Aplicando cambios en docker-compose..."
+              docker compose --env-file .env up -d
+            fi
+
+            echo "Okas, deploy completado"

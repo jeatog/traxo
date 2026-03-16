@@ -2,6 +2,14 @@
 
 API REST de Traxo. Gestiona la autenticación de usuarios, el historial de consultas SPEI y actúa de intermediario hacia el microservicio Python que hace scraping de Banxico.
 
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)]()
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4.2-6DB33F?logo=springboot&logoColor=white)]()
+[![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?logo=apachemaven&logoColor=white)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)]()
+[![Flyway](https://img.shields.io/badge/Flyway-10.x-CC0200?logo=flyway&logoColor=white)]()
+[![Spring Security](https://img.shields.io/badge/Spring_Security-6.x-6DB33F?logo=springsecurity&logoColor=white)]()
+[![JWT](https://img.shields.io/badge/JWT-JJWT_0.12-000000?logo=jsonwebtokens&logoColor=white)]()
+
 ---
 
 ## Tecnologías
@@ -116,6 +124,7 @@ src/main/java/mx/traxo/
 │   ├── cliente/                      # Adaptadores de salida: servicios externos
 │   │   ├── JwtTokenGateway.java       # implements TokenGateway — genera/valida JWT con JJWT
 │   │   ├── SpeiGatewayAdapter.java    # implements SpeiGateway — llama a traxo-micros con WebClient
+│   │   ├── TurnstileService.java      # Verifica tokens de Cloudflare Turnstile contra la API de Cloudflare
 │   │   └── FiltroLogRestApi.java      # Log de peticiones salientes al microservicio
 │   │
 │   └── web/                          # Adaptadores de entrada: HTTP
@@ -175,8 +184,14 @@ Crea una nueva cuenta. No requiere token.
 
 **Request:**
 ```json
-{ "nombre": "Juan", "email": "juan@ejemplo.com", "contrasena": "minimo8chars" }
+{
+  "nombre": "Juan",
+  "email": "juan@ejemplo.com",
+  "contrasena": "minimo8chars",
+  "turnstileToken": "<token del widget Cloudflare Turnstile>"
+}
 ```
+`turnstileToken` es opcional en el DTO pero se valida en el backend contra la API de Cloudflare. Si `TURNSTILE_SECRET_KEY` no está configurada en el servidor, la verificación se omite (modo desarrollo).
 **Response `201`:**
 ```json
 { "id": "uuid", "email": "juan@ejemplo.com" }
@@ -425,6 +440,7 @@ Campos que **nunca se almacenan** por decisión de privacidad: CLABE, clave de r
 | `TRAXO_JWT_COOKIE_SECURE` | `false` | `true` en producción (HTTPS). Con `false` la cookie funciona en HTTP (localhost). |
 | `MICROS_URL` | `http://localhost:3000` | URL del microservicio Python |
 | `MICROS_API_KEY` | _(vacío)_ | API key compartida con el microservicio |
+| `TURNSTILE_SECRET_KEY` | _(vacío)_ | Clave secreta de Cloudflare Turnstile. Si está vacía, la verificación anti-bot en `/api/auth/registro` se omite. |
 
 ---
 

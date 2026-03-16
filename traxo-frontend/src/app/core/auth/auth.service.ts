@@ -32,8 +32,8 @@ export class AuthService {
       .pipe(tap(() => this._autenticado.set(true)));
   }
 
-  registrar(nombre: string, email: string, contrasena: string): Observable<unknown> {
-    return this.http.post(`${environment.apiUrl}/auth/registro`, { nombre, email, contrasena });
+  registrar(nombre: string, email: string, contrasena: string, turnstileToken: string): Observable<unknown> {
+    return this.http.post(`${environment.apiUrl}/auth/registro`, { nombre, email, contrasena, turnstileToken });
   }
 
   cerrarSesion(): void {
